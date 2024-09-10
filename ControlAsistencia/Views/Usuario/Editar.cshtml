@@ -1,0 +1,47 @@
+﻿@model ControlAsistencia.Models.Usuario
+
+<h2>Editar Usuario</h2>
+
+<form asp-action="Editar" method="post">
+    <input type="hidden" asp-for="IdUsuario" />
+
+    <div>
+        <label>Nombre</label>
+        <input asp-for="Nombre" class="form-control" />
+    </div>
+    <div>
+        <label>Apellido</label>
+        <input asp-for="Apellido" class="form-control" />
+    </div>
+    <div>
+        <label>Correo</label>
+        <input asp-for="Correo" class="form-control" />
+    </div>
+    <div>
+        <label>Foto</label>
+        <input asp-for="Foto" class="form-control" />
+    </div>
+    <div>
+        <label>Sexo</label>
+        <input asp-for="Sexo" class="form-control" />
+    </div>
+    <div>
+        <label>Fecha Nacimiento</label>
+        <input asp-for="FechaNacimiento" type="date" class="form-control" />
+    </div>
+    <div>
+        <label>Nacionalidad</label>
+        <input asp-for="Nacionalidad" class="form-control" />
+    </div>
+    <div>
+        <label>RUT</label>
+        <input asp-for="RUT" class="form-control" />
+    </div>
+    <div>
+        <label>Activo</label>
+        <input asp-for="Activo" type="checkbox" />
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+</form>
+
+<a href="/Usuario">Volver a la lista</a>

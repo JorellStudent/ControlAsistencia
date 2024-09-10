@@ -1,0 +1,112 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Registro de Asistencia";
+}
+
+<div class="container mt-5">
+    <!-- Título principal -->
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h2 class="display-4 font-weight-bold">Registro de Asistencia</h2>
+        </div>
+    </div>
+
+    <!-- Mostrar mensajes dinámicos -->
+    @if (ViewBag.Message != null)
+    {
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="alert alert-info text-center">
+                    @ViewBag.Message
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Sección para mostrar la fecha y hora en tiempo real -->
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            <h4>Fecha y Hora Actual:</h4>
+            <h3 id="fechaHoraActual" class="font-weight-bold text-primary"></h3>
+        </div>
+    </div>
+
+    <div class="row mt-5 justify-content-center">
+        <!-- Formulario para marcar entrada -->
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h4 class="card-title text-center">Marcar Entrada</h4>
+                    <form method="post" action="/Home/MarcarEntrada">
+                        <div class="form-group">
+                            <label for="NombreUsuario">Nombre de Usuario:</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                </div>
+                                <input type="text" name="NombreUsuario" class="form-control" required value="@ViewBag.NombreUsuario" placeholder="Ingrese su nombre de usuario" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Contrasena">Contraseña:</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                </div>
+                                <input type="password" name="Contrasena" class="form-control" required placeholder="Ingrese su contraseña" />
+                            </div>
+                        </div>
+                        <div class="text-center mb-2">
+                            <button type="submit" id="btnEntrada" class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-sign-in-alt"></i> Marcar Entrada
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Formulario para marcar salida -->
+                    <form method="post" action="/Home/MarcarSalida">
+                        <input type="hidden" name="NombreUsuario" value="@ViewBag.NombreUsuario" />
+                        <input type="hidden" name="Contrasena" value="@ViewBag.Contrasena" />
+                        <div class="text-center">
+                            <button type="submit" id="btnSalida" class="btn btn-danger w-100" @(ViewBag.EntradaMarcada == true ? "" : "disabled")>
+                                <i class="fas fa-sign-out-alt"></i> Marcar Salida
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- Para usar los íconos de Font Awesome -->
+
+    <script>
+        // Función para actualizar la fecha y hora en tiempo real
+        function actualizarFechaHora() {
+            var fecha = new Date();
+            var opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            var opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+            // Actualizar el texto en el HTML
+            document.getElementById("fechaHoraActual").innerHTML =
+                fecha.toLocaleDateString('es-ES', opcionesFecha) + ' - ' +
+                fecha.toLocaleTimeString('es-ES', opcionesHora);
+        }
+
+        // Actualizar la hora cada segundo
+        setInterval(actualizarFechaHora, 1000);
+
+        $(document).ready(function () {
+            // Verificar si el usuario ha marcado su entrada
+            var entradaMarcada = '@ViewBag.EntradaMarcada' === 'True';
+
+            if (!entradaMarcada) {
+                $('#btnSalida').attr('disabled', 'disabled');
+            } else {
+                $('#btnSalida').removeAttr('disabled');
+            }
+        });
+    </script>
+}

@@ -1,0 +1,34 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Lista de Usuarios";
+}
+
+<h2>Lista de Usuarios</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Correo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usuario in Model)
+        {
+            <tr>
+                <td>@usuario.Nombre</td>
+                <td>@usuario.Apellido</td>
+                <td>@usuario.Correo</td>
+                <td>
+                    <a href="/Usuario/Detalles/@usuario.IdUsuario">Detalles</a> |
+                    <a href="/Usuario/Editar/@usuario.IdUsuario">Editar</a> |
+                    <a href="/Usuario/Eliminar/@usuario.IdUsuario">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Usuario/Crear">Crear nuevo usuario</a>

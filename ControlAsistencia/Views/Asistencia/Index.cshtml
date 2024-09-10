@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Lista de Asistencias";
+}
+
+<h2>Lista de Asistencias</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>Hora de Entrada</th>
+            <th>Hora de Salida</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var asistencia in Model)
+        {
+            <tr>
+                <td>@asistencia.Usuario.Nombre</td>
+                <td>@asistencia.Fecha.ToShortDateString()</td>
+                <td>@asistencia.HoraEntrada</td>
+                <td>@asistencia.HoraSalida ?? "No registrada"</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Asistencia/MarcarEntrada">Marcar Entrada</a> |
+<a href="/Asistencia/MarcarSalida">Marcar Salida</a>

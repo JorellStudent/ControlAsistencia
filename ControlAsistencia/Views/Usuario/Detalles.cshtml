@@ -1,0 +1,36 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Detalles de Usuario";
+}
+
+<h2>Detalles de Usuario</h2>
+
+<div>
+    <label>Nombre: </label> @Model.Nombre
+</div>
+<div>
+    <label>Apellido: </label> @Model.Apellido
+</div>
+<div>
+    <label>Correo: </label> @Model.Correo
+</div>
+<div>
+    <label>Foto: </label> @Model.Foto
+</div>
+<div>
+    <label>Sexo: </label> @Model.Sexo
+</div>
+<div>
+    <label>Fecha de Nacimiento: </label> @Model.FechaNacimiento.ToShortDateString()
+</div>
+<div>
+    <label>Nacionalidad: </label> @Model.Nacionalidad
+</div>
+<div>
+    <label>RUT: </label> @Model.RUT
+</div>
+<div>
+    <label>Activo: </label> @(Model.Activo ? "Sí" : "No")
+</div>
+
+<a href="/Usuario">Volver a la lista</a>

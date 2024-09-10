@@ -1,0 +1,28 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Reporte de Asistencia";
+}
+
+<h2>Reporte de Asistencia</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Hora de Entrada</th>
+            <th>Hora de Salida</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var asistencia in Model)
+        {
+            <tr>
+                <td>@asistencia.Fecha.ToShortDateString()</td>
+                <td>@asistencia.HoraEntrada</td>
+                <td>@asistencia.HoraSalida ?? "No registrada"</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Reporte">Volver al inicio de reportes</a>

@@ -1,0 +1,25 @@
+﻿@model ControlAsistencia.Models.Usuario
+
+<h2>Eliminar Usuario</h2>
+
+<h3>¿Estás seguro que deseas eliminar este usuario?</h3>
+
+<div>
+    <label>Nombre: </label> @Model.Nombre
+</div>
+<div>
+    <label>Apellido: </label> @Model.Apellido
+</div>
+<div>
+    <label>Correo: </label> @Model.Correo
+</div>
+<div>
+    <label>RUT: </label> @Model.RUT
+</div>
+
+<form asp-action="EliminarConfirmado" method="post">
+    <input type="hidden" asp-for="IdUsuario" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+</form>
+
+<a href="/Usuario">Volver a la lista</a>
