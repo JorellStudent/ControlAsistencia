@@ -2,7 +2,7 @@
 using ControlAsistencia.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace ControlAsistencia.Controllers
 {
@@ -18,11 +18,11 @@ namespace ControlAsistencia.Controllers
 
         // Manejar la validación del inicio de sesión del administrador
         [HttpPost]
-        public IActionResult Login(string NombreUsuario, string Contrasena)
+        public async Task<IActionResult> Login(string NombreUsuario, string Contrasena)
         {
-            var credencial = _context.Credencial
+            var credencial = await _context.Credencial
                 .Include(c => c.Rol)
-                .FirstOrDefault(c => c.NombreUsuario == NombreUsuario && c.Contrasena == Contrasena);
+                .FirstOrDefaultAsync(c => c.NombreUsuario == NombreUsuario && c.Contrasena == Contrasena);
 
             if (credencial == null || credencial.Rol.NombreRol != "Administrador")
             {
@@ -30,15 +30,74 @@ namespace ControlAsistencia.Controllers
                 return View();
             }
 
-            // Si las credenciales son válidas, redirigir al dashboard del administrador
+            // Si las credenciales son válidas, redirigir al panel de administración
             return RedirectToAction("Dashboard");
         }
 
-        // Página principal del administrador
+        // Acción para mostrar el panel de administración
         public IActionResult Dashboard()
         {
-            // Aquí iría el contenido para la administración
             return View();
+        }
+
+        // Acción para manejar la gestión de usuarios
+        public async Task<IActionResult> GestionUsuarios()
+        {
+            try
+            {
+                var usuarios = await _context.Usuarios.ToListAsync();
+                return View(usuarios);
+            }
+            catch (System.Exception ex)
+            {
+                ViewBag.ErrorMessage = "Error al cargar la lista de usuarios: " + ex.Message;
+                return View("Error");
+            }
+        }
+
+        // Acción para manejar la gestión de credenciales
+        public async Task<IActionResult> GestionCredenciales()
+        {
+            try
+            {
+                var credenciales = await _context.Credencial.ToListAsync();
+                return View(credenciales);
+            }
+            catch (System.Exception ex)
+            {
+                ViewBag.ErrorMessage = "Error al cargar la lista de credenciales: " + ex.Message;
+                return View("Error");
+            }
+        }
+
+        // Acción para gestionar horarios de trabajo
+        public async Task<IActionResult> HorariosTrabajo()
+        {
+            try
+            {
+                var horarios = await _context.HorariosTrabajo.Include(h => h.Usuario).ToListAsync();
+                return View(horarios);
+            }
+            catch (System.Exception ex)
+            {
+                ViewBag.ErrorMessage = "Error al cargar los horarios de trabajo: " + ex.Message;
+                return View("Error");
+            }
+        }
+
+        // Acción para ver reportes de asistencia
+        public async Task<IActionResult> ReportesAsistencia()
+        {
+            try
+            {
+                var asistencias = await _context.Asistencias.Include(a => a.Usuario).ToListAsync();
+                return View(asistencias);
+            }
+            catch (System.Exception ex)
+            {
+                ViewBag.ErrorMessage = "Error al cargar los reportes de asistencia: " + ex.Message;
+                return View("Error");
+            }
         }
     }
 }

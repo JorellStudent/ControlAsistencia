@@ -1,65 +1,74 @@
 ﻿@model ControlAsistencia.Models.Usuario
-@{
-    Layout = "_Layout";
-    ViewData["Title"] = "Crear Usuario";
-}
 
-<h2>Crear Usuario</h2>
+<div class="container mt-5">
+    <h2 class="text-center display-4">Agregar Nuevo Usuario</h2>
 
-<form asp-action="Crear" method="post">
-    <div class="form-group">
-        <label asp-for="Nombre" class="control-label"></label>
-        <input asp-for="Nombre" class="form-control" />
-        <span asp-validation-for="Nombre" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Apellido" class="control-label"></label>
-        <input asp-for="Apellido" class="form-control" />
-        <span asp-validation-for="Apellido" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Correo" class="control-label"></label>
-        <input asp-for="Correo" class="form-control" />
-        <span asp-validation-for="Correo" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Foto" class="control-label"></label>
-        <input asp-for="Foto" class="form-control" />
-        <!-- Foto es opcional, así que no se necesita mostrar errores de validación -->
-    </div>
-    <div class="form-group">
-        <label asp-for="Sexo" class="control-label"></label>
-        <select asp-for="Sexo" class="form-control">
-            <option value="">Seleccione</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-        </select>
-        <span asp-validation-for="Sexo" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="FechaNacimiento" class="control-label"></label>
-        <input asp-for="FechaNacimiento" type="date" class="form-control" />
-        <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Nacionalidad" class="control-label"></label>
-        <input asp-for="Nacionalidad" class="form-control" />
-        <span asp-validation-for="Nacionalidad" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="RUT" class="control-label"></label>
-        <input asp-for="RUT" class="form-control" />
-        <span asp-validation-for="RUT" class="text-danger"></span>
-    </div>
-    <div class="form-group form-check">
-        <input asp-for="Activo" class="form-check-input" type="checkbox" />
-        <label asp-for="Activo" class="form-check-label"></label>
-        <!-- No es necesario un mensaje de error para checkbox -->
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</form>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger text-center">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
-<a href="/Usuario">Volver a la lista</a>
+    <form asp-action="Crear" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="Nombre">Nombre:</label>
+            <input type="text" asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="Apellido">Apellido:</label>
+            <input type="text" asp-for="Apellido" class="form-control" />
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="Correo">Correo:</label>
+            <input type="email" asp-for="Correo" class="form-control" />
+            <span asp-validation-for="Correo" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="Foto">Foto (opcional):</label>
+            <input type="file" asp-for="Foto" class="form-control" />
+            <span asp-validation-for="Foto" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="Sexo">Sexo:</label>
+            <select asp-for="Sexo" class="form-control">
+                <option value="">Seleccione</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+            </select>
+            <span asp-validation-for="Sexo" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="FechaNacimiento">Fecha de Nacimiento:</label>
+            <input type="date" asp-for="FechaNacimiento" class="form-control" />
+            <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="Nacionalidad">Nacionalidad:</label>
+            <input type="text" asp-for="Nacionalidad" class="form-control" />
+            <span asp-validation-for="Nacionalidad" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="RUT">RUT:</label>
+            <input type="text" asp-for="RUT" class="form-control" />
+            <span asp-validation-for="RUT" class="text-danger"></span>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success">Agregar Usuario</button>
+            <a href="@Url.Action("Index", "Usuario")" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

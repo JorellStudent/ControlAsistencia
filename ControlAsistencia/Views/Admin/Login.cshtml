@@ -3,24 +3,99 @@
     ViewData["Title"] = "Iniciar sesión como Administrador";
 }
 
-<h2>Iniciar sesión como Administrador</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 rounded-lg">
+                <div class="card-header bg-gradient-primary text-white text-center py-4">
+                    <h2 class="card-title mb-0">Iniciar sesión como Administrador</h2>
+                    <p class="mt-2 mb-0">Por favor, ingresa tus credenciales</p>
+                </div>
+                <div class="card-body py-4 px-5">
+                    <!-- Mostrar mensajes de error -->
+                    @if (ViewBag.Message != null)
+                    {
+                        <div class="alert alert-danger text-center">
+                            @ViewBag.Message
+                        </div>
+                    }
 
-<!-- Mostrar mensajes de error -->
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-danger">
-        @ViewBag.Message
+                    <!-- Formulario de inicio de sesión -->
+                    <form method="post" action="/Admin/Login">
+                        <div class="form-group">
+                            <label for="NombreUsuario" class="font-weight-bold">Nombre de Usuario:</label>
+                            <input type="text" name="NombreUsuario" class="form-control" required placeholder="Ingrese su nombre de usuario" autofocus />
+                        </div>
+                        <div class="form-group">
+                            <label for="Contrasena" class="font-weight-bold">Contraseña:</label>
+                            <input type="password" name="Contrasena" class="form-control" required placeholder="Ingrese su contraseña" />
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-block btn-lg mt-3 shadow-sm">Iniciar sesión</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">Solo los administradores pueden acceder</small>
+                </div>
+            </div>
+        </div>
     </div>
-}
+</div>
 
-<form method="post" action="/Admin/Login">
-    <div class="form-group">
-        <label for="NombreUsuario">Nombre de Usuario:</label>
-        <input type="text" name="NombreUsuario" class="form-control" required />
-    </div>
-    <div class="form-group">
-        <label for="Contrasena">Contraseña:</label>
-        <input type="password" name="Contrasena" class="form-control" required />
-    </div>
-    <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-</form>
+<!-- Estilos adicionales -->
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(90deg, #007bff 0%, #00d4ff 100%);
+    }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 1.1rem;
+    }
+
+    .card-footer {
+        padding: 15px;
+    }
+
+    .alert {
+        font-weight: bold;
+        border-radius: 10px;
+    }
+
+    /* Fondo suave para la página */
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .card-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .card-header p {
+        font-size: 1.1rem;
+        font-weight: 300;
+    }
+
+    .btn-lg {
+        font-size: 1.2rem;
+    }
+</style>

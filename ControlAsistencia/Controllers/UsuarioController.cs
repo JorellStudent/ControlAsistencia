@@ -2,6 +2,10 @@
 using ControlAsistencia.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ControlAsistencia.Controllers
 {
@@ -9,10 +13,20 @@ namespace ControlAsistencia.Controllers
     {
         private readonly ApplicationDbContext _context = context;
 
-        // Lista de usuarios
-        public async Task<IActionResult> Index()
+        // Lista de usuarios activos con filtro de búsqueda
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Usuarios.ToListAsync());
+            var usuarios = _context.Usuarios.Where(u => u.Activo == true); // Solo usuarios activos
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+                usuarios = usuarios.Where(s => s.Nombre.Contains(searchString, StringComparison.CurrentCultureIgnoreCase) ||
+                                               s.Apellido.Contains(searchString, StringComparison.CurrentCultureIgnoreCase) ||
+                                               s.RUT.Contains(searchString));
+            }
+
+            return View(await usuarios.ToListAsync());
         }
 
         // Detalle de usuario
@@ -32,15 +46,42 @@ namespace ControlAsistencia.Controllers
             return View();
         }
 
-        // Crear usuario (POST)
+        // Crear usuario (POST) con validación de RUT único y guardado de imagen
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear([Bind("Nombre,Apellido,Correo,Foto,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario)
+        public async Task<IActionResult> Crear([Bind("Nombre,Apellido,Correo,Foto,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario, IFormFile Foto)
         {
+            // Verificar que el RUT sea único
+            if (_context.Usuarios.Any(u => u.RUT == usuario.RUT))
+            {
+                ModelState.AddModelError("RUT", "El RUT ya está registrado.");
+                return View(usuario);
+            }
+
             if (ModelState.IsValid)
             {
+                // Guardar la imagen si está presente
+                if (Foto != null && Foto.Length > 0)
+                {
+                    var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                    if (!Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+
+                    var filePath = Path.Combine(directoryPath, Foto.FileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await Foto.CopyToAsync(stream);
+                    }
+                    usuario.Foto = "/images/" + Foto.FileName; // Guardar la ruta de la imagen
+                }
+
+                usuario.Activo = true; // Usuario activo por defecto
                 _context.Add(usuario);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Usuario agregado con éxito.";
                 return RedirectToAction(nameof(Index));
             }
             return View(usuario);
@@ -60,7 +101,7 @@ namespace ControlAsistencia.Controllers
         // Editar usuario (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("IdUsuario,Nombre,Apellido,Correo,Foto,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario)
+        public async Task<IActionResult> Editar(int id, [Bind("IdUsuario,Nombre,Apellido,Correo,Foto,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario, IFormFile Foto)
         {
             if (id != usuario.IdUsuario)
             {
@@ -71,8 +112,28 @@ namespace ControlAsistencia.Controllers
             {
                 try
                 {
+                    // Guardar nueva imagen si se sube una
+                    if (Foto != null && Foto.Length > 0)
+                    {
+                        var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                        if (!Directory.Exists(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
+
+                        var filePath = Path.Combine(directoryPath, Foto.FileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await Foto.CopyToAsync(stream);
+                        }
+                        usuario.Foto = "/images/" + Foto.FileName;
+                    }
+
                     _context.Update(usuario);
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Usuario editado con éxito.";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -82,12 +143,11 @@ namespace ControlAsistencia.Controllers
                     }
                     throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(usuario);
         }
 
-        // Eliminar usuario (GET)
+        // Marcar usuario como inactivo (GET)
         public async Task<IActionResult> Eliminar(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
@@ -98,7 +158,7 @@ namespace ControlAsistencia.Controllers
             return View(usuario);
         }
 
-        // Eliminar usuario (POST)
+        // Marcar usuario como inactivo (POST)
         [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarConfirmado(int id)
@@ -106,10 +166,14 @@ namespace ControlAsistencia.Controllers
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario != null)
             {
-                _context.Usuarios.Remove(usuario);
+                usuario.Activo = false; // Marcamos el usuario como inactivo
+                _context.Update(usuario);
                 await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Usuario eliminado con éxito.";
             }
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

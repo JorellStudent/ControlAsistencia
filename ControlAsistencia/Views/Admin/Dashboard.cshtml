@@ -3,6 +3,122 @@
     ViewData["Title"] = "Panel de Administración";
 }
 
-<h2>Bienvenido al Panel de Administración</h2>
+<div class="container mt-5">
+    <h2 class="text-center display-4 font-weight-bold mb-4">Panel de Administración</h2>
+    <div class="row justify-content-center">
+        <!-- Sección para gestionar usuarios -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body text-center py-5">
+                    <h4 class="card-title font-weight-bold">Gestión de Usuarios</h4>
+                    <p class="text-muted">Crear, editar o eliminar usuarios</p>
+                    <a href="/Usuario/Index" class="btn btn-primary btn-lg w-100 shadow-sm">Gestionar Usuarios</a>
+                </div>
+            </div>
+        </div>
 
-<p>Aquí podrás gestionar los usuarios, asistencias, reportes, etc.</p>
+        <!-- Sección para gestionar credenciales -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body text-center py-5">
+                    <h4 class="card-title font-weight-bold">Gestión de Credenciales</h4>
+                    <p class="text-muted">Crear, editar o eliminar credenciales</p>
+                    <a href="/Admin/GestionCredenciales" class="btn btn-info btn-lg w-100 shadow-sm">Gestionar Credenciales</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección para definir horarios de trabajo -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body text-center py-5">
+                    <h4 class="card-title font-weight-bold">Horarios de Trabajo</h4>
+                    <p class="text-muted">Definir horarios de trabajo</p>
+                    <a href="/Admin/HorariosTrabajo" class="btn btn-warning btn-lg w-100 shadow-sm">Definir Horarios</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección para reportes de asistencia -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body text-center py-5">
+                    <h4 class="card-title font-weight-bold">Reportes de Asistencia</h4>
+                    <p class="text-muted">Generar reportes de asistencia</p>
+                    <a href="/Admin/ReportesAsistencia" class="btn btn-success btn-lg w-100 shadow-sm">Ver Reportes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos adicionales -->
+<style>
+    .card {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-lg {
+        font-size: 1.1rem;
+        padding: 10px 20px;
+    }
+
+    .card-body h4 {
+        color: #333;
+    }
+
+    .text-muted {
+        font-size: 0.95rem;
+        color: #6c757d;
+    }
+
+    .container h2 {
+        font-size: 2.5rem;
+        color: #007bff;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .shadow-lg {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+</style>
