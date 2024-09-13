@@ -9,24 +9,32 @@ using System.Threading.Tasks;
 
 namespace ControlAsistencia.Controllers
 {
-    public class UsuarioController(ApplicationDbContext context) : Controller
+    public class UsuarioController : Controller
     {
-        private readonly ApplicationDbContext _context = context;
+        private readonly ApplicationDbContext _context;
+
+        public UsuarioController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         // Lista de usuarios activos con filtro de búsqueda
         public async Task<IActionResult> Index(string searchString)
         {
-            var usuarios = _context.Usuarios.Where(u => u.Activo == true); // Solo usuarios activos
+            var usuarios = await _context.Usuarios.Where(u => u.Activo).ToListAsync(); // Solo usuarios activos
 
             if (!string.IsNullOrEmpty(searchString))
             {
+                // Búsqueda sensible a minúsculas y en memoria (cliente)
                 searchString = searchString.ToLower();
-                usuarios = usuarios.Where(s => s.Nombre.Contains(searchString, StringComparison.CurrentCultureIgnoreCase) ||
-                                               s.Apellido.Contains(searchString, StringComparison.CurrentCultureIgnoreCase) ||
-                                               s.RUT.Contains(searchString));
+                usuarios = usuarios
+                    .Where(s => s.Nombre.ToLower().Contains(searchString) ||
+                                s.Apellido.ToLower().Contains(searchString) ||
+                                s.RUT.Contains(searchString))
+                    .ToList();
             }
 
-            return View(await usuarios.ToListAsync());
+            return View(usuarios);
         }
 
         // Detalle de usuario
@@ -35,7 +43,8 @@ namespace ControlAsistencia.Controllers
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Usuario no encontrado.";
+                return RedirectToAction(nameof(Index));
             }
             return View(usuario);
         }
@@ -60,30 +69,38 @@ namespace ControlAsistencia.Controllers
 
             if (ModelState.IsValid)
             {
-                // Guardar la imagen si está presente
-                if (Foto != null && Foto.Length > 0)
+                try
                 {
-                    var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                    if (!Directory.Exists(directoryPath))
+                    // Guardar la imagen si está presente
+                    if (Foto != null && Foto.Length > 0)
                     {
-                        Directory.CreateDirectory(directoryPath);
+                        var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                        if (!Directory.Exists(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
+
+                        var filePath = Path.Combine(directoryPath, Foto.FileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await Foto.CopyToAsync(stream);
+                        }
+                        usuario.Foto = "/images/" + Foto.FileName; // Guardar la ruta de la imagen
                     }
 
-                    var filePath = Path.Combine(directoryPath, Foto.FileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await Foto.CopyToAsync(stream);
-                    }
-                    usuario.Foto = "/images/" + Foto.FileName; // Guardar la ruta de la imagen
+                    usuario.Activo = true; // Usuario activo por defecto
+                    _context.Add(usuario);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Usuario agregado con éxito.";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                usuario.Activo = true; // Usuario activo por defecto
-                _context.Add(usuario);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Usuario agregado con éxito.";
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Error al agregar usuario: {ex.Message}";
+                }
             }
+
             return View(usuario);
         }
 
@@ -93,7 +110,8 @@ namespace ControlAsistencia.Controllers
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Usuario no encontrado.";
+                return RedirectToAction(nameof(Index));
             }
             return View(usuario);
         }
@@ -143,18 +161,26 @@ namespace ControlAsistencia.Controllers
                     }
                     throw;
                 }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Error al editar usuario: {ex.Message}";
+                }
             }
             return View(usuario);
         }
 
-        // Marcar usuario como inactivo (GET)
+        // Confirmar eliminación del usuario (GET)
         public async Task<IActionResult> Eliminar(int id)
         {
+            // Buscar el usuario por ID
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "El usuario no existe o ya ha sido eliminado.";
+                return RedirectToAction(nameof(Index));
             }
+
+            // Devolver la vista con la información del usuario
             return View(usuario);
         }
 
@@ -163,17 +189,32 @@ namespace ControlAsistencia.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarConfirmado(int id)
         {
+            // Buscar el usuario por ID
             var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario != null)
+            if (usuario == null)
             {
-                usuario.Activo = false; // Marcamos el usuario como inactivo
+                TempData["ErrorMessage"] = "El usuario no existe o ya ha sido eliminado.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                // Marca el usuario como inactivo en lugar de eliminarlo físicamente
+                usuario.Activo = false;
                 _context.Update(usuario);
                 await _context.SaveChangesAsync();
 
+                // Mensaje de éxito
                 TempData["SuccessMessage"] = "Usuario eliminado con éxito.";
             }
+            catch (Exception ex)
+            {
+                // Manejo de errores y mensaje de error
+                TempData["ErrorMessage"] = $"Ocurrió un error al eliminar el usuario: {ex.Message}";
+            }
+
+            // Redirigir a la lista de usuarios
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

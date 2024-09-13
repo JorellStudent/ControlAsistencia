@@ -1,0 +1,46 @@
+﻿@model ControlAsistencia.Models.Credencial
+
+<div class="container mt-5">
+    <h2 class="text-center">Editar Credencial</h2>
+
+    <!-- Mostrar mensaje de éxito o error -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success text-center">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger text-center">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <form asp-action="Editar" method="post">
+        <input type="hidden" asp-for="IdCredencial" />
+
+        <div class="form-group">
+            <label for="NombreUsuario">Nombre de Usuario</label>
+            <input type="text" class="form-control" asp-for="NombreUsuario" required />
+        </div>
+
+        <div class="form-group">
+            <label for="Contrasena">Contraseña</label>
+            <input type="password" class="form-control" asp-for="Contrasena" required />
+        </div>
+
+        <div class="form-group">
+            <label for="IdUsuario">Usuario</label>
+            <select class="form-control" asp-for="IdUsuario" asp-items="ViewBag.Usuarios"></select>
+        </div>
+
+        <div class="form-group">
+            <label for="IdRol">Rol</label>
+            <select class="form-control" asp-for="IdRol" asp-items="ViewBag.Roles"></select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

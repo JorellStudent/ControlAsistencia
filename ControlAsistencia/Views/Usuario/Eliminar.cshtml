@@ -16,8 +16,10 @@
                     <p><strong>Correo:</strong> @Model.Correo</p>
                     <p><strong>RUT:</strong> @Model.RUT</p>
 
-                    <form asp-action="EliminarConfirmado" asp-route-id="@Model.IdUsuario" method="post">
+                    <!-- Formulario para confirmar la eliminación -->
+                    <form asp-action="Eliminar" asp-route-id="@Model.IdUsuario" method="post">
                         @Html.AntiForgeryToken() <!-- Protección CSRF -->
+
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-danger btn-lg mr-3">
                                 <i class="fas fa-trash-alt"></i> Confirmar Eliminación
@@ -37,25 +39,25 @@
 <!-- Estilos adicionales -->
 <style>
     .card {
-        border-radius: 15px;
+        border-radius: 10px;
         border: 2px solid #dc3545;
-        transition: all 0.3s ease-in-out;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     }
 
     .btn-danger {
         background-color: #dc3545;
         border-color: #dc3545;
-        padding: 10px 20px;
-        font-size: 1.1rem;
+        padding: 12px 25px;
+        font-size: 1.2rem;
     }
 
     .btn-secondary {
-        padding: 10px 20px;
-        font-size: 1.1rem;
+        padding: 12px 25px;
+        font-size: 1.2rem;
     }
 
     .btn-danger:hover {
-        background-color: #bd2130;
+        background-color: #c82333;
         border-color: #bd2130;
     }
 
@@ -65,15 +67,17 @@
     }
 
     .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
 
     body {
-        background-color: #f8f9fa;
+        background-color: #f4f6f9;
     }
 
     .text-danger {
-        color: #dc3545;
+        color: #c82333;
+        font-weight: bold;
     }
 </style>
+ n

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ControlAsistencia.Data; // Asegúrate de importar el namespace correcto para ApplicationDbContext
+using ControlAsistencia.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +29,13 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// Configuración de cookies y acceso
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login"; // Ruta a la página de login
+    options.AccessDeniedPath = "/Account/AccessDenied"; // Ruta cuando se deniega el acceso
+});
+
 // Agregar servicios de MVC y Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -52,7 +59,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Mapear controladores y rutas para Razor Pages (opcional si usas Razor Pages en Identity)
+// Mapear controladores y rutas para Razor Pages
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

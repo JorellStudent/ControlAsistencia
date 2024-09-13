@@ -1,0 +1,16 @@
+﻿@model ControlAsistencia.Models.Credencial
+
+<div class="container mt-5">
+    <h2 class="text-center text-danger">Confirmación de Eliminación</h2>
+
+    <form asp-action="EliminarConfirmado" method="post">
+        @Html.AntiForgeryToken()
+
+        <p><strong>Nombre de Usuario:</strong> @Model.NombreUsuario</p>
+        <p><strong>Contraseña:</strong> @Model.Contrasena</p>
+        <p><strong>Usuario:</strong> @Model.Usuario.Nombre</p>
+
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

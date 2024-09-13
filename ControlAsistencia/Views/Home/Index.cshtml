@@ -23,7 +23,7 @@
         </div>
     }
 
-    <!-- Sección para mostrar la fecha y hora en tiempo real -->
+    <!-- Sección para mostrar la fecha y hora en tiempo real -->zz
     <div class="row mt-4">
         <div class="col-md-12 text-center">
             <h4>Fecha y Hora Actual:</h4>
@@ -32,12 +32,13 @@
     </div>
 
     <div class="row mt-5 justify-content-center">
-        <!-- Formulario para marcar entrada -->
+        <!-- Formulario de Entrada/Salida -->
         <div class="col-md-6 mb-3">
             <div class="card shadow-lg">
                 <div class="card-body">
-                    <h4 class="card-title text-center">Marcar Entrada</h4>
-                    <form method="post" action="/Home/MarcarEntrada">
+                    <h4 class="card-title text-center" id="tituloFormulario">Marcar Entrada</h4>
+
+                    <form id="formularioEntradaSalida" method="post" action="/Home/MarcarEntrada">
                         <div class="form-group">
                             <label for="NombreUsuario">Nombre de Usuario:</label>
                             <div class="input-group">
@@ -57,19 +58,8 @@
                             </div>
                         </div>
                         <div class="text-center mb-2">
-                            <button type="submit" id="btnEntrada" class="btn btn-success w-100 mb-2">
+                            <button type="submit" id="btnAccion" class="btn btn-success w-100 mb-2">
                                 <i class="fas fa-sign-in-alt"></i> Marcar Entrada
-                            </button>
-                        </div>
-                    </form>
-
-                    <!-- Formulario para marcar salida -->
-                    <form method="post" action="/Home/MarcarSalida">
-                        <input type="hidden" name="NombreUsuario" value="@ViewBag.NombreUsuario" />
-                        <input type="hidden" name="Contrasena" value="@ViewBag.Contrasena" />
-                        <div class="text-center">
-                            <button type="submit" id="btnSalida" class="btn btn-danger w-100" @(ViewBag.EntradaMarcada == true ? "" : "disabled")>
-                                <i class="fas fa-sign-out-alt"></i> Marcar Salida
                             </button>
                         </div>
                     </form>
@@ -99,13 +89,23 @@
         setInterval(actualizarFechaHora, 1000);
 
         $(document).ready(function () {
-            // Verificar si el usuario ha marcado su entrada
-            var entradaMarcada = '@ViewBag.EntradaMarcada' === 'True';
+            // Verificar la hora actual
+            var fechaActual = new Date();
+            var hora = fechaActual.getHours();
 
-            if (!entradaMarcada) {
-                $('#btnSalida').attr('disabled', 'disabled');
+            // Si es antes de las 12:00 PM, mostrar botón de entrada, sino, mostrar botón de salida
+            if (hora < 12) {
+                // Antes de las 12 PM
+                $('#btnAccion').removeClass('btn-danger').addClass('btn-success');
+                $('#btnAccion').html('<i class="fas fa-sign-in-alt"></i> Marcar Entrada');
+                $('#formularioEntradaSalida').attr('action', '/Home/MarcarEntrada');
+                $('#tituloFormulario').text('Marcar Entrada');
             } else {
-                $('#btnSalida').removeAttr('disabled');
+                // Después de las 12 PM
+                $('#btnAccion').removeClass('btn-success').addClass('btn-danger');
+                $('#btnAccion').html('<i class="fas fa-sign-out-alt"></i> Marcar Salida');
+                $('#formularioEntradaSalida').attr('action', '/Home/MarcarSalida');
+                $('#tituloFormulario').text('Marcar Salida');
             }
         });
     </script>
