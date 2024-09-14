@@ -48,6 +48,6 @@ namespace ControlAsistencia.Models
         public ICollection<Auditoria>? Auditorias { get; set; }  // Relación con Auditorias
 
         // Relación con Credencial
-        public ICollection<Credencial>? Credencial { get; set; }
+        public required ICollection<Credencial> Credencial { get; set; }
     }
 }

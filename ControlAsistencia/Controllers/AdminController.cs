@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace ControlAsistencia.Controllers
 {
-    public class AdminController(ApplicationDbContext context) : Controller
+    public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context = context;
+        private readonly ApplicationDbContext _context;
+
+        public AdminController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         // Mostrar el formulario de inicio de sesión del administrador
         public IActionResult Login()
@@ -20,6 +25,14 @@ namespace ControlAsistencia.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string NombreUsuario, string Contrasena)
         {
+            // Validar si los campos están vacíos
+            if (string.IsNullOrEmpty(NombreUsuario) || string.IsNullOrEmpty(Contrasena))
+            {
+                ViewBag.Message = "Por favor, ingrese un nombre de usuario y una contraseña.";
+                return View();
+            }
+
+            // Buscar la credencial en la base de datos con el rol correspondiente
             var credencial = await _context.Credencial
                 .Include(c => c.Rol)
                 .FirstOrDefaultAsync(c => c.NombreUsuario == NombreUsuario && c.Contrasena == Contrasena);
@@ -75,7 +88,9 @@ namespace ControlAsistencia.Controllers
         {
             try
             {
-                var horarios = await _context.HorariosTrabajo.Include(h => h.Usuario).ToListAsync();
+                var horarios = await _context.HorariosTrabajo
+                    .Include(h => h.Usuario)
+                    .ToListAsync();
                 return View(horarios);
             }
             catch (System.Exception ex)
@@ -90,7 +105,9 @@ namespace ControlAsistencia.Controllers
         {
             try
             {
-                var asistencias = await _context.Asistencias.Include(a => a.Usuario).ToListAsync();
+                var asistencias = await _context.Asistencias
+                    .Include(a => a.Usuario)
+                    .ToListAsync();
                 return View(asistencias);
             }
             catch (System.Exception ex)

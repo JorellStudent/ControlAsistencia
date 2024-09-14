@@ -1,15 +1,24 @@
-﻿namespace ControlAsistencia.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ControlAsistencia.Models
 {
     public class Credencial
     {
-        public int IdCredencial { get; set; }  // Clave primaria
+        public int IdCredencial { get; set; }
 
-        public required int IdUsuario { get; set; }  // Clave foránea a Usuario
-        public required string NombreUsuario { get; set; }  // Obligatorio
-        public required string Contrasena { get; set; }  // Obligatorio
-        public required int IdRol { get; set; }  // Clave foránea a Rol
+        [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]
+        public required string NombreUsuario { get; set; }
 
-        // Relaciones con Usuario y Rol
+        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        public required string Contrasena { get; set; }
+
+        [Required(ErrorMessage = "El usuario es obligatorio.")]
+        public int IdUsuario { get; set; }
+
+        [Required(ErrorMessage = "El rol es obligatorio.")]
+        public int IdRol { get; set; }
+
+        // Relación con otras tablas (opcional)
         public required Usuario Usuario { get; set; }
         public required Rol Rol { get; set; }
     }

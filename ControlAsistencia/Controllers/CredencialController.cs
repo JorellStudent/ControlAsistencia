@@ -1,10 +1,10 @@
-﻿using ControlAsistencia.Data;
-using ControlAsistencia.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Threading.Tasks;
+using ControlAsistencia.Data;
+using ControlAsistencia.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 
 namespace ControlAsistencia.Controllers
 {
@@ -17,173 +17,208 @@ namespace ControlAsistencia.Controllers
             _context = context;
         }
 
-        // Lista de credenciales con búsqueda y filtro por rol
-        public async Task<IActionResult> Index(string searchString, string roleFilter)
+        // Método para cargar ViewBags de Usuarios y Roles
+        private void CargarUsuariosYRoles()
         {
-            var credencialesQuery = _context.Credencial
-                                             .Include(c => c.Usuario)
-                                             .Include(c => c.Rol) // Incluir la relación con Rol
-                                             .AsQueryable();
+            var usuarios = _context.Usuarios.Where(u => u.Activo).ToList();
+            var roles = _context.Roles.ToList();
 
-            // Aplicar filtro de búsqueda
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                searchString = searchString.ToLower();
-                credencialesQuery = credencialesQuery.Where(c => c.Usuario.Nombre.ToLower().Contains(searchString) ||
-                                                                 c.Usuario.Apellido.ToLower().Contains(searchString) ||
-                                                                 c.NombreUsuario.ToLower().Contains(searchString));
-            }
+            Console.WriteLine($"Usuarios: {usuarios.Count}, Roles: {roles.Count}");
 
-            // Aplicar filtro por rol
-            if (!string.IsNullOrEmpty(roleFilter) && roleFilter != "Todos")
-            {
-                credencialesQuery = credencialesQuery.Where(c => c.Rol.NombreRol == roleFilter);
-            }
-
-            var credenciales = await credencialesQuery.ToListAsync();
-
-            // Enviar la lista de roles a la vista para el filtro
-            ViewBag.Roles = new SelectList(new[] { "Todos", "Administrador", "Empleado", "Jefatura" });
-
-            return View(credenciales);
+            ViewBag.Usuarios = new SelectList(usuarios, "IdUsuario", "Nombre");
+            ViewBag.Roles = new SelectList(roles, "IdRol", "NombreRol");
         }
 
-        // Método para cargar Usuarios y Roles
-        private void CargarUsuariosYRoles(int? idUsuarioSeleccionado = null, int? idRolSeleccionado = null)
-        {
-            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Activo), "IdUsuario", "Nombre", idUsuarioSeleccionado);
-            ViewBag.Roles = new SelectList(_context.Roles, "IdRol", "NombreRol", idRolSeleccionado);
-        }
 
-        // Crear credencial (GET)
+        // Acción para mostrar el formulario de creación de una nueva credencial
         public IActionResult Crear()
         {
-            // Cargar usuarios activos y roles disponibles
             CargarUsuariosYRoles();
             return View();
         }
 
-        // Crear credencial (POST)
+        // POST: Credencial/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear([Bind("IdUsuario,NombreUsuario,Contrasena,IdRol")] Credencial credencial)
+        public async Task<IActionResult> Crear(Credencial credencial)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
                 {
-                    _context.Add(credencial);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Credencial creada con éxito.";
-                    return RedirectToAction(nameof(Index));
+                    Console.WriteLine(error.ErrorMessage);  // Puedes cambiar esto para que se muestre en la interfaz o lo manejes en el log.
                 }
-                catch (DbUpdateException ex)
-                {
-                    // Manejar errores de actualización de la base de datos
-                    ModelState.AddModelError("", $"Error al crear la credencial: {ex.Message}");
-                }
-            }
 
-            // Si ocurre un error, recargar las listas para usuarios y roles
-            CargarUsuariosYRoles(credencial.IdUsuario, credencial.IdRol);
-            return View(credencial);
-        }
-
-        // Editar credencial (GET)
-        public async Task<IActionResult> Editar(int id)
-        {
-            var credencial = await _context.Credencial.FindAsync(id);
-            if (credencial == null)
-            {
-                TempData["ErrorMessage"] = "Credencial no encontrada.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            CargarUsuariosYRoles(credencial.IdUsuario, credencial.IdRol);
-            return View(credencial);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("IdCredencial,IdUsuario,NombreUsuario,Contrasena,IdRol")] Credencial credencial)
-        {
-            if (id != credencial.IdCredencial)
-            {
-                TempData["ErrorMessage"] = "El ID de la credencial no coincide.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(credencial);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Credencial editada con éxito.";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CredencialExists(credencial.IdCredencial))
-                    {
-                        TempData["ErrorMessage"] = "La credencial no existe.";
-                        return RedirectToAction(nameof(Index));
-                    }
-                    throw;
-                }
-                catch (DbUpdateException ex)
-                {
-                    TempData["ErrorMessage"] = $"Error al editar la credencial: {ex.Message}";
-                }
-            }
-
-            CargarUsuariosYRoles(credencial.IdUsuario, credencial.IdRol);
-            return View(credencial);
-        }
-
-        // Confirmar eliminación de credencial (GET)
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            var credencial = await _context.Credencial
-                                           .Include(c => c.Usuario)
-                                           .Include(c => c.Rol)
-                                           .FirstOrDefaultAsync(c => c.IdCredencial == id);
-            if (credencial == null)
-            {
-                TempData["ErrorMessage"] = "Credencial no encontrada.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View(credencial);
-        }
-
-        // Eliminar credencial (POST)
-        [HttpPost, ActionName("Eliminar")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EliminarConfirmado(int id)
-        {
-            var credencial = await _context.Credencial.FindAsync(id);
-            if (credencial == null)
-            {
-                TempData["ErrorMessage"] = "Credencial no encontrada.";
-                return RedirectToAction(nameof(Index));
+                CargarUsuariosYRoles();  // Volver a cargar los ViewBags si falla la validación
+                return View(credencial);
             }
 
             try
             {
-                _context.Credencial.Remove(credencial);
+                _context.Add(credencial);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Credencial eliminada con éxito.";
+                TempData["SuccessMessage"] = "Credencial creada exitosamente.";
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException dbEx)
             {
-                TempData["ErrorMessage"] = $"Error al eliminar la credencial: {ex.Message}";
+                ModelState.AddModelError("", $"Error al intentar guardar los cambios: {dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error inesperado: {ex.Message}");
             }
 
-            return RedirectToAction(nameof(Index));
+            CargarUsuariosYRoles();  // Volver a cargar los ViewBags si falla la validación
+            return View(credencial);
         }
 
-        private bool CredencialExists(int id)
+
+        // Acción para mostrar la lista de credenciales
+        public async Task<IActionResult> Index()
+        {
+            try
+            {
+                // Cargar las credenciales junto con los roles y usuarios asociados
+                var credenciales = await _context.Credencial
+                    .Include(c => c.Rol)
+                    .Include(c => c.Usuario)
+                    .ToListAsync();
+                return View(credenciales);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error al cargar los datos de las credenciales: {ex.Message}");
+                return View();
+            }
+        }
+
+        // Acción para mostrar el formulario de edición de una credencial
+        public async Task<IActionResult> Editar(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                var credencial = await _context.Credencial.FindAsync(id);
+                if (credencial == null)
+                {
+                    return NotFound();
+                }
+
+                CargarUsuariosYRoles();
+                return View(credencial);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al intentar cargar los datos de la credencial: {ex.Message}");
+                return View();
+            }
+        }
+
+        // POST: Credencial/Editar/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(int id, [Bind("IdCredencial,NombreUsuario,Contrasena,IdRol,IdUsuario")] Credencial credencial)
+        {
+            if (id != credencial.IdCredencial)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);  // Aquí puedes mostrar los errores de validación.
+                }
+
+                CargarUsuariosYRoles();  // Volver a cargar los ViewBags si falla la validación
+                return View(credencial);
+            }
+
+            try
+            {
+                _context.Update(credencial);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Credencial editada exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException dbEx)
+            {
+                ModelState.AddModelError("", $"Error al intentar guardar los cambios: {dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error inesperado: {ex.Message}");
+            }
+
+            CargarUsuariosYRoles();  // Volver a cargar los ViewBags si falla la validación
+            return View(credencial);
+        }
+
+
+
+        // Acción para mostrar el formulario de eliminación de una credencial
+        public async Task<IActionResult> Eliminar(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                var credencial = await _context.Credencial
+                    .Include(c => c.Rol)
+                    .Include(c => c.Usuario)
+                    .FirstOrDefaultAsync(m => m.IdCredencial == id);
+                if (credencial == null)
+                {
+                    return NotFound();
+                }
+
+                return View(credencial);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al intentar cargar los datos de la credencial: {ex.Message}");
+                return View();
+            }
+        }
+
+        // POST: Credencial/Eliminar/5
+        [HttpPost, ActionName("Eliminar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EliminarConfirmado(int id)
+        {
+            try
+            {
+                var credencial = await _context.Credencial.FindAsync(id);
+                if (credencial == null)
+                {
+                    return NotFound();
+                }
+
+                _context.Credencial.Remove(credencial);  // Eliminar la credencial de la base de datos
+                await _context.SaveChangesAsync();  // Guardar cambios
+                TempData["SuccessMessage"] = "Credencial eliminada exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ocurrió un error al intentar eliminar la credencial: {ex.Message}");
+                return View();
+            }
+        }
+
+        // Método para verificar si una credencial existe en la base de datos
+        private bool CredencialExiste(int id)
         {
             return _context.Credencial.Any(e => e.IdCredencial == id);
         }

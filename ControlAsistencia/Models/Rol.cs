@@ -7,6 +7,6 @@
         public required string NombreRol { get; set; }  // Obligatorio
 
         // Relación con Credenciales
-        public ICollection<Credencial> Credencial { get; set; } = [];
+        public ICollection<Credencial> Credencial { get; set; } = new List<Credencial>();
     }
 }

@@ -1,46 +1,59 @@
 ﻿@model ControlAsistencia.Models.Credencial
 
-<div class="container mt-5">
-    <h2 class="text-center">Editar Credencial</h2>
+@{
+    ViewData["Title"] = "Editar Credencial";
+}
 
-    <!-- Mostrar mensaje de éxito o error -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success text-center">
-            @TempData["SuccessMessage"]
-        </div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger text-center">
-            @TempData["ErrorMessage"]
-        </div>
-    }
+<h2>Editar Credencial</h2>
 
-    <form asp-action="Editar" method="post">
-        <input type="hidden" asp-for="IdCredencial" />
+<h4>Modifica los datos de la credencial</h4>
+<hr />
 
-        <div class="form-group">
-            <label for="NombreUsuario">Nombre de Usuario</label>
-            <input type="text" class="form-control" asp-for="NombreUsuario" required />
-        </div>
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Editar">
+            <!-- Campo oculto para el ID de la credencial -->
+            <input asp-for="IdCredencial" type="hidden" />
 
-        <div class="form-group">
-            <label for="Contrasena">Contraseña</label>
-            <input type="password" class="form-control" asp-for="Contrasena" required />
-        </div>
+            <!-- Campo para seleccionar el usuario -->
+            <div class="form-group">
+                <label asp-for="IdUsuario" class="control-label">Usuario</label>
+                <select asp-for="IdUsuario" class="form-control" asp-items="ViewBag.Usuarios"></select>
+                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+            </div>
 
-        <div class="form-group">
-            <label for="IdUsuario">Usuario</label>
-            <select class="form-control" asp-for="IdUsuario" asp-items="ViewBag.Usuarios"></select>
-        </div>
+            <!-- Campo para el nombre de usuario -->
+            <div class="form-group">
+                <label asp-for="NombreUsuario" class="control-label">Nombre de Usuario</label>
+                <input asp-for="NombreUsuario" class="form-control" />
+                <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+            </div>
 
-        <div class="form-group">
-            <label for="IdRol">Rol</label>
-            <select class="form-control" asp-for="IdRol" asp-items="ViewBag.Roles"></select>
-        </div>
+            <!-- Campo para la contraseña (con type password para seguridad) -->
+            <div class="form-group">
+                <label asp-for="Contrasena" class="control-label">Contraseña</label>
+                <input asp-for="Contrasena" type="password" class="form-control" />
+                <span asp-validation-for="Contrasena" class="text-danger"></span>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
-    </form>
+            <!-- Campo para seleccionar el rol -->
+            <div class="form-group">
+                <label asp-for="IdRol" class="control-label">Rol</label>
+                <select asp-for="IdRol" class="form-control" asp-items="ViewBag.Roles"></select>
+                <span asp-validation-for="IdRol" class="text-danger"></span>
+            </div>
+
+            <!-- Botón para guardar los cambios -->
+            <div class="form-group">
+                <input type="submit" value="Guardar Cambios" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
