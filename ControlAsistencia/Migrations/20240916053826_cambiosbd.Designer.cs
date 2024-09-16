@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ControlAsistencia.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240914055916_UpdateCredencialModel")]
-    partial class UpdateCredencialModel
+    [Migration("20240916053826_cambiosbd")]
+    partial class Cambiosbd
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -96,7 +96,8 @@ namespace ControlAsistencia.Migrations
 
                     b.Property<string>("Contrasena")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("IdRol")
                         .HasColumnType("int");
@@ -106,7 +107,8 @@ namespace ControlAsistencia.Migrations
 
                     b.Property<string>("NombreUsuario")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("IdCredencial");
 
@@ -220,7 +222,8 @@ namespace ControlAsistencia.Migrations
 
                     b.Property<string>("NombreRol")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("IdRol");
 

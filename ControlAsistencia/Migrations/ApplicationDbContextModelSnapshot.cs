@@ -93,7 +93,8 @@ namespace ControlAsistencia.Migrations
 
                     b.Property<string>("Contrasena")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("IdRol")
                         .HasColumnType("int");
@@ -103,7 +104,8 @@ namespace ControlAsistencia.Migrations
 
                     b.Property<string>("NombreUsuario")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("IdCredencial");
 
@@ -217,7 +219,8 @@ namespace ControlAsistencia.Migrations
 
                     b.Property<string>("NombreRol")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.HasKey("IdRol");
 

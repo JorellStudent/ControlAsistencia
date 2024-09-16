@@ -19,6 +19,7 @@ namespace ControlAsistencia.Models
 
         [Required(ErrorMessage = "El correo es obligatorio")]
         [EmailAddress(ErrorMessage = "Debe ingresar un correo válido")]
+        [StringLength(255, ErrorMessage = "El correo debe tener un máximo de 255 caracteres")]
         public required string Correo { get; set; }  // Obligatorio
 
         [StringLength(250, ErrorMessage = "La URL de la foto debe tener un máximo de 250 caracteres")]
@@ -48,6 +49,6 @@ namespace ControlAsistencia.Models
         public ICollection<Auditoria>? Auditorias { get; set; }  // Relación con Auditorias
 
         // Relación con Credencial
-        public required ICollection<Credencial> Credencial { get; set; }
+        public ICollection<Credencial> Credencial { get; set; } = new List<Credencial>();
     }
 }

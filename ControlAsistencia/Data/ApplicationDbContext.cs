@@ -1,7 +1,6 @@
 ﻿using ControlAsistencia.Models;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace ControlAsistencia.Data
 {
     public class ApplicationDbContext : DbContext
@@ -18,7 +17,7 @@ namespace ControlAsistencia.Data
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
         public DbSet<Permiso> Permisos { get; set; }
-        public DbSet<Credencial> Credencial { get; set; }
+        public DbSet<Credencial> Credencial { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

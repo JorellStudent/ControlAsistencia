@@ -6,35 +6,36 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ControlAsistencia.Controllers
 {
     public class UsuarioController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<UsuarioController> _logger; // Para registrar errores
 
-        public UsuarioController(ApplicationDbContext context)
+        public UsuarioController(ApplicationDbContext context, ILogger<UsuarioController> logger)
         {
             _context = context;
+            _logger = logger; // Inicialización del logger
         }
 
         // Lista de usuarios activos con filtro de búsqueda
         public async Task<IActionResult> Index(string searchString)
         {
-            var usuarios = await _context.Usuarios.Where(u => u.Activo).ToListAsync(); // Solo usuarios activos
+            var usuarios = _context.Usuarios.Where(u => u.Activo); // Solo usuarios activos
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                // Búsqueda sensible a minúsculas y en memoria (cliente)
+                // Búsqueda directamente en la base de datos (LINQ to Entities)
                 searchString = searchString.ToLower();
-                usuarios = usuarios
-                    .Where(s => s.Nombre.ToLower().Contains(searchString) ||
-                                s.Apellido.ToLower().Contains(searchString) ||
-                                s.RUT.Contains(searchString))
-                    .ToList();
+                usuarios = usuarios.Where(s => s.Nombre.ToLower().Contains(searchString) ||
+                                               s.Apellido.ToLower().Contains(searchString) ||
+                                               s.RUT.Contains(searchString));
             }
 
-            return View(usuarios);
+            return View(await usuarios.ToListAsync());
         }
 
         // Detalle de usuario
@@ -74,18 +75,27 @@ namespace ControlAsistencia.Controllers
                     // Guardar la imagen si está presente
                     if (Foto != null && Foto.Length > 0)
                     {
+                        // Limitar el tamaño del archivo (ejemplo: 2 MB)
+                        if (Foto.Length > 2 * 1024 * 1024)
+                        {
+                            ModelState.AddModelError("Foto", "El tamaño del archivo de imagen no debe superar los 2 MB.");
+                            return View(usuario);
+                        }
+
                         var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
                         if (!Directory.Exists(directoryPath))
                         {
                             Directory.CreateDirectory(directoryPath);
                         }
 
-                        var filePath = Path.Combine(directoryPath, Foto.FileName);
+                        // Generar un nombre de archivo único
+                        var fileName = Guid.NewGuid() + Path.GetExtension(Foto.FileName);
+                        var filePath = Path.Combine(directoryPath, fileName);
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
                             await Foto.CopyToAsync(stream);
                         }
-                        usuario.Foto = "/images/" + Foto.FileName; // Guardar la ruta de la imagen
+                        usuario.Foto = "/images/" + fileName; // Guardar la ruta de la imagen
                     }
 
                     usuario.Activo = true; // Usuario activo por defecto
@@ -97,6 +107,8 @@ namespace ControlAsistencia.Controllers
                 }
                 catch (Exception ex)
                 {
+                    // Registrar el error
+                    _logger.LogError(ex, "Error al agregar el usuario");
                     TempData["ErrorMessage"] = $"Error al agregar usuario: {ex.Message}";
                 }
             }
@@ -133,18 +145,26 @@ namespace ControlAsistencia.Controllers
                     // Guardar nueva imagen si se sube una
                     if (Foto != null && Foto.Length > 0)
                     {
+                        // Limitar el tamaño del archivo (ejemplo: 2 MB)
+                        if (Foto.Length > 2 * 1024 * 1024)
+                        {
+                            ModelState.AddModelError("Foto", "El tamaño del archivo de imagen no debe superar los 2 MB.");
+                            return View(usuario);
+                        }
+
                         var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
                         if (!Directory.Exists(directoryPath))
                         {
                             Directory.CreateDirectory(directoryPath);
                         }
 
-                        var filePath = Path.Combine(directoryPath, Foto.FileName);
+                        var fileName = Guid.NewGuid() + Path.GetExtension(Foto.FileName);
+                        var filePath = Path.Combine(directoryPath, fileName);
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
                             await Foto.CopyToAsync(stream);
                         }
-                        usuario.Foto = "/images/" + Foto.FileName;
+                        usuario.Foto = "/images/" + fileName;
                     }
 
                     _context.Update(usuario);
@@ -159,10 +179,15 @@ namespace ControlAsistencia.Controllers
                     {
                         return NotFound();
                     }
-                    throw;
+                    else
+                    {
+                        TempData["ErrorMessage"] = "El usuario fue modificado por otro usuario. Vuelve a intentarlo.";
+                        return View(usuario);
+                    }
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Error al editar el usuario");
                     TempData["ErrorMessage"] = $"Error al editar usuario: {ex.Message}";
                 }
             }
@@ -172,7 +197,6 @@ namespace ControlAsistencia.Controllers
         // Confirmar eliminación del usuario (GET)
         public async Task<IActionResult> Eliminar(int id)
         {
-            // Buscar el usuario por ID
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
             {
@@ -180,7 +204,6 @@ namespace ControlAsistencia.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Devolver la vista con la información del usuario
             return View(usuario);
         }
 
@@ -189,7 +212,6 @@ namespace ControlAsistencia.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarConfirmado(int id)
         {
-            // Buscar el usuario por ID
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
             {
@@ -204,16 +226,14 @@ namespace ControlAsistencia.Controllers
                 _context.Update(usuario);
                 await _context.SaveChangesAsync();
 
-                // Mensaje de éxito
                 TempData["SuccessMessage"] = "Usuario eliminado con éxito.";
             }
             catch (Exception ex)
             {
-                // Manejo de errores y mensaje de error
+                _logger.LogError(ex, "Error al eliminar el usuario");
                 TempData["ErrorMessage"] = $"Ocurrió un error al eliminar el usuario: {ex.Message}";
             }
 
-            // Redirigir a la lista de usuarios
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,24 +1,38 @@
 ﻿@model ControlAsistencia.Models.Credencial
 
+@{
+    ViewBag.Title = "Eliminar Credencial";
+}
+
 <h2>Eliminar Credencial</h2>
 
 <div>
-    <h4>¿Estás seguro que quieres eliminar esta credencial?</h4>
+    <h4>¿Está seguro de que desea eliminar esta credencial?</h4>
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">Usuario</dt>
-        <dd class="col-sm-10">@Model.Usuario.Nombre</dd>
-
-        <dt class="col-sm-2">Nombre de Usuario</dt>
-        <dd class="col-sm-10">@Model.NombreUsuario</dd>
-
-        <dt class="col-sm-2">Rol</dt>
-        <dd class="col-sm-10">@Model.Rol.NombreRol</dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.NombreUsuario)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NombreUsuario)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Usuario.Nombre)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Usuario.Nombre)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Rol.NombreRol)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Rol.NombreRol)
+        </dd>
     </dl>
 
     <form asp-action="Eliminar">
         <input type="hidden" asp-for="IdCredencial" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
+        <button type="submit" class="btn btn-danger">Eliminar</button>
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>

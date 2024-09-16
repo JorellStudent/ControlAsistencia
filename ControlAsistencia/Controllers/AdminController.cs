@@ -37,6 +37,7 @@ namespace ControlAsistencia.Controllers
                 .Include(c => c.Rol)
                 .FirstOrDefaultAsync(c => c.NombreUsuario == NombreUsuario && c.Contrasena == Contrasena);
 
+            // Validar credencial y rol de administrador
             if (credencial == null || credencial.Rol.NombreRol != "Administrador")
             {
                 ViewBag.Message = "Credenciales de administrador inválidas.";
@@ -44,12 +45,20 @@ namespace ControlAsistencia.Controllers
             }
 
             // Si las credenciales son válidas, redirigir al panel de administración
+            // Aquí podrías establecer la sesión del administrador, por ejemplo:
+            // HttpContext.Session.SetString("Admin", credencial.NombreUsuario);
             return RedirectToAction("Dashboard");
         }
 
         // Acción para mostrar el panel de administración
         public IActionResult Dashboard()
         {
+            // Verificar si el administrador está autenticado (si implementas autenticación por sesión)
+            // if (HttpContext.Session.GetString("Admin") == null)
+            // {
+            //     return RedirectToAction("Login");
+            // }
+
             return View();
         }
 
@@ -73,7 +82,10 @@ namespace ControlAsistencia.Controllers
         {
             try
             {
-                var credenciales = await _context.Credencial.ToListAsync();
+                var credenciales = await _context.Credencial
+                    .Include(c => c.Rol)
+                    .Include(c => c.Usuario)
+                    .ToListAsync();
                 return View(credenciales);
             }
             catch (System.Exception ex)
