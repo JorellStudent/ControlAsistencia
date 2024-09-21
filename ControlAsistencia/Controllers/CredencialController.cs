@@ -18,8 +18,13 @@ namespace ControlAsistencia.Controllers
         // Método para cargar ViewBags de Usuarios y Roles
         private void CargarUsuariosYRoles()
         {
-            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Activo), "IdUsuario", "Nombre");
-            ViewBag.Roles = new SelectList(_context.Roles, "IdRol", "NombreRol");
+            // Filtrar usuarios que no tienen credencial asociada
+            var usuariosSinCredencial = _context.Usuarios
+                .Where(u => u.Activo && !_context.Credencial.Any(c => c.IdUsuario == u.IdUsuario))
+                .ToList();
+
+            ViewBag.Usuarios = new SelectList(usuariosSinCredencial, "IdUsuario", "Nombre");
+            ViewBag.Roles = new SelectList(_context.Roles.ToList(), "IdRol", "NombreRol");
         }
 
         // Acción para mostrar el formulario de creación de una nueva credencial
@@ -40,7 +45,7 @@ namespace ControlAsistencia.Controllers
                 return View(credencial);
             }
 
-            // Validar que no exista un usuario con el mismo nombre de usuario
+            // Validar que no exista un nombre de usuario duplicado
             if (_context.Credencial.Any(c => c.NombreUsuario == credencial.NombreUsuario))
             {
                 ModelState.AddModelError("NombreUsuario", "El nombre de usuario ya está en uso.");
@@ -98,7 +103,7 @@ namespace ControlAsistencia.Controllers
                 return View(credencial);
             }
 
-            // Validar que no se repita el nombre de usuario si lo está editando
+            // Validar que no se repita el nombre de usuario si se está editando
             if (_context.Credencial.Any(c => c.NombreUsuario == credencial.NombreUsuario && c.IdCredencial != id))
             {
                 ModelState.AddModelError("NombreUsuario", "El nombre de usuario ya está en uso por otra credencial.");

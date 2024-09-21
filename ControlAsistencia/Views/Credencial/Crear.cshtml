@@ -6,28 +6,35 @@
 
 <h2>Crear Credencial</h2>
 
-<form asp-action="Crear" method="post">
+<form asp-action="Crear" method="post" novalidate>
     <div class="form-group">
         <label asp-for="NombreUsuario" class="control-label"></label>
-        <input asp-for="NombreUsuario" class="form-control" />
-        <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+        <input asp-for="NombreUsuario" class="form-control" placeholder="Ingrese el nombre de usuario" aria-required="true" />
+        <span asp-validation-for="NombreUsuario" class="text-danger" aria-describedby="NombreUsuario-error"></span>
     </div>
     <div class="form-group">
         <label asp-for="Contrasena" class="control-label"></label>
-        <input asp-for="Contrasena" class="form-control" type="password" />
-        <span asp-validation-for="Contrasena" class="text-danger"></span>
+        <input asp-for="Contrasena" class="form-control" type="password" placeholder="Ingrese la contraseña" aria-required="true" />
+        <span asp-validation-for="Contrasena" class="text-danger" aria-describedby="Contrasena-error"></span>
+        <small class="form-text text-muted">
+            La contraseña debe tener al menos 6 caracteres, incluir una letra mayúscula, una minúscula y un número.
+        </small>
     </div>
     <div class="form-group">
         <label asp-for="IdUsuario" class="control-label"></label>
-        <select asp-for="IdUsuario" class="form-control" asp-items="ViewBag.Usuarios"></select>
-        <span asp-validation-for="IdUsuario" class="text-danger"></span>
+        <select asp-for="IdUsuario" class="form-control" asp-items="ViewBag.Usuarios" aria-required="true">
+            <option value="">Seleccione un usuario</option>
+        </select>
+        <span asp-validation-for="IdUsuario" class="text-danger" aria-describedby="IdUsuario-error"></span>
     </div>
     <div class="form-group">
         <label asp-for="IdRol" class="control-label"></label>
-        <select asp-for="IdRol" class="form-control" asp-items="ViewBag.Roles"></select>
-        <span asp-validation-for="IdRol" class="text-danger"></span>
+        <select asp-for="IdRol" class="form-control" asp-items="ViewBag.Roles" aria-required="true">
+            <option value="">Seleccione un rol</option>
+        </select>
+        <span asp-validation-for="IdRol" class="text-danger" aria-describedby="IdRol-error"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button type="submit" class="btn btn-primary btn-lg w-100">Guardar</button>
 </form>
 
 @section Scripts {

@@ -12,6 +12,7 @@ namespace ControlAsistencia.Models
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
         [StringLength(255, ErrorMessage = "La contraseña debe tener un máximo de 255 caracteres")]
+        [DataType(DataType.Password)]
         public string Contrasena { get; set; } = string.Empty;  // Obligatorio
 
         [Required(ErrorMessage = "El ID del rol es obligatorio")]
@@ -21,9 +22,9 @@ namespace ControlAsistencia.Models
         public int IdUsuario { get; set; }  // Obligatorio (Clave foránea para Usuario)
 
         // Relación con Usuario
-        public virtual Usuario Usuario { get; set; } = null!;
+        public virtual Usuario? Usuario { get; set; }  // Relación con Usuario (opcional)
 
         // Relación con Rol
-        public virtual Rol Rol { get; set; } = null!;
+        public virtual Rol? Rol { get; set; }  // Relación con Rol (opcional)
     }
 }

@@ -1,0 +1,36 @@
+﻿@model ControlAsistencia.Models.Asistencia
+
+@{
+    ViewBag.Title = "Crear Asistencia";
+}
+
+<h2>Crear Asistencia</h2>
+
+<form asp-action="Crear">
+    <div class="form-group">
+        <label for="Usuario">Empleado</label>
+        <select asp-for="IdUsuario" asp-items="ViewBag.Usuarios" class="form-control"></select>
+        <span asp-validation-for="IdUsuario" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Fecha">Fecha</label>
+        <input asp-for="Fecha" class="form-control" type="date" />
+        <span asp-validation-for="Fecha" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="HoraEntrada">Hora de Entrada</label>
+        <input asp-for="HoraEntrada" class="form-control" type="time" />
+        <span asp-validation-for="HoraEntrada" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="HoraSalida">Hora de Salida</label>
+        <input asp-for="HoraSalida" class="form-control" type="time" />
+        <span asp-validation-for="HoraSalida" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Crear Asistencia</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>

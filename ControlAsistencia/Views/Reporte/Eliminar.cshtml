@@ -1,0 +1,29 @@
+﻿@model ControlAsistencia.Models.Asistencia
+
+@{
+    ViewBag.Title = "Eliminar Asistencia";
+}
+
+<h2>Eliminar Asistencia</h2>
+
+<div>
+    <h4>¿Estás seguro que deseas eliminar esta asistencia?</h4>
+    <div>
+        <strong>Empleado:</strong> @Model.Usuario.Nombre @Model.Usuario.Apellido
+    </div>
+    <div>
+        <strong>Fecha:</strong> @Model.Fecha.ToString("dd/MM/yyyy")
+    </div>
+    <div>
+        <strong>Hora de Entrada:</strong> @Model.HoraEntrada.ToString("HH:mm")
+    </div>
+    <div>
+        <strong>Hora de Salida:</strong> @Model.HoraSalida?.ToString("HH:mm")
+    </div>
+
+    <form asp-action="EliminarConfirmado">
+        <input type="hidden" asp-for="IdAsistencia" />
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

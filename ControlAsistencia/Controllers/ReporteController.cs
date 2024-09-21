@@ -2,33 +2,42 @@
 using ControlAsistencia.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ControlAsistencia.Controllers
 {
-    public class ReporteController(ApplicationDbContext context) : Controller
+    public class ReporteController : Controller
     {
-        private readonly ApplicationDbContext _context = context;
+        private readonly ApplicationDbContext _context;
 
-        // Reporte de asistencia por usuario
-        public async Task<IActionResult> ReporteAsistencia(int idUsuario)
+        public ReporteController(ApplicationDbContext context)
         {
+            _context = context;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            // Obtener las asistencias con los datos del usuario
             var asistencias = await _context.Asistencias
-                .Where(a => a.IdUsuario == idUsuario)
                 .Include(a => a.Usuario)
                 .ToListAsync();
 
             return View(asistencias);
         }
 
-        // Reporte de faltas y atrasos
-        public async Task<IActionResult> ReporteFaltas()
+        public async Task<IActionResult> Detalles(int id)
         {
-            var hoy = DateTime.Now.Date;
-            var usuariosSinEntrada = await _context.Usuarios
-                .Where(u => !_context.Asistencias.Any(a => a.IdUsuario == u.IdUsuario && a.Fecha.Date == hoy))
-                .ToListAsync();
+            var asistencia = await _context.Asistencias
+                .Include(a => a.Usuario)
+                .FirstOrDefaultAsync(a => a.IdAsistencia == id);
 
-            return View(usuariosSinEntrada);
+            if (asistencia == null)
+            {
+                return NotFound();
+            }
+
+            return View(asistencia);
         }
     }
 }
