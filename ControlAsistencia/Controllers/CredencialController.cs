@@ -16,15 +16,27 @@ namespace ControlAsistencia.Controllers
         }
 
         // Método para cargar ViewBags de Usuarios y Roles
-        private void CargarUsuariosYRoles()
+        private void CargarUsuariosYRoles(int? idUsuarioSeleccionado = null)
         {
             // Filtrar usuarios que no tienen credencial asociada
             var usuariosSinCredencial = _context.Usuarios
                 .Where(u => u.Activo && !_context.Credencial.Any(c => c.IdUsuario == u.IdUsuario))
                 .ToList();
 
-            ViewBag.Usuarios = new SelectList(usuariosSinCredencial, "IdUsuario", "Nombre");
-            ViewBag.Roles = new SelectList(_context.Roles.ToList(), "IdRol", "NombreRol");
+            // Si es edición, agregar el usuario actual a la lista
+            if (idUsuarioSeleccionado.HasValue)
+            {
+                var usuarioActual = _context.Usuarios.Find(idUsuarioSeleccionado.Value);
+                if (usuarioActual != null)
+                {
+                    usuariosSinCredencial.Add(usuarioActual);
+                }
+            }
+
+            // Asignar los datos a los ViewBags
+            ViewBag.Usuarios = new SelectList(usuariosSinCredencial, "IdUsuario", "Nombre", idUsuarioSeleccionado);
+            var roles = _context.Roles.ToList();
+            ViewBag.Roles = new SelectList(roles, "IdRol", "NombreRol");
         }
 
         // Acción para mostrar el formulario de creación de una nueva credencial
@@ -77,13 +89,17 @@ namespace ControlAsistencia.Controllers
                 return NotFound();
             }
 
-            var credencial = await _context.Credencial.FindAsync(id);
+            var credencial = await _context.Credencial
+                .Include(c => c.Usuario)
+                .Include(c => c.Rol)
+                .FirstOrDefaultAsync(c => c.IdCredencial == id);
+
             if (credencial == null)
             {
                 return NotFound();
             }
 
-            CargarUsuariosYRoles();
+            CargarUsuariosYRoles(credencial.IdUsuario); // Cargar con el usuario actual
             return View(credencial);
         }
 
@@ -99,21 +115,30 @@ namespace ControlAsistencia.Controllers
 
             if (!ModelState.IsValid)
             {
-                CargarUsuariosYRoles();
+                CargarUsuariosYRoles(credencial.IdUsuario); // Mantener el usuario actual preseleccionado
                 return View(credencial);
             }
 
-            // Validar que no se repita el nombre de usuario si se está editando
-            if (_context.Credencial.Any(c => c.NombreUsuario == credencial.NombreUsuario && c.IdCredencial != id))
+            // Recuperar la credencial existente desde la base de datos
+            var credencialExistente = await _context.Credencial.FindAsync(id);
+
+            if (credencialExistente == null)
             {
-                ModelState.AddModelError("NombreUsuario", "El nombre de usuario ya está en uso por otra credencial.");
-                CargarUsuariosYRoles();
-                return View(credencial);
+                return NotFound();
+            }
+
+            // Actualizar los campos necesarios
+            credencialExistente.NombreUsuario = credencial.NombreUsuario;
+
+            // Si no se ha modificado la contraseña, mantener la anterior
+            if (!string.IsNullOrEmpty(credencial.Contrasena))
+            {
+                credencialExistente.Contrasena = credencial.Contrasena;
             }
 
             try
             {
-                _context.Update(credencial);
+                _context.Update(credencialExistente);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Credencial editada exitosamente.";
                 return RedirectToAction(nameof(Index));
@@ -123,7 +148,7 @@ namespace ControlAsistencia.Controllers
                 ModelState.AddModelError("", $"Error al intentar guardar los cambios: {ex.Message}");
             }
 
-            CargarUsuariosYRoles();
+            CargarUsuariosYRoles(credencial.IdUsuario); // Mantener el usuario actual preseleccionado
             return View(credencial);
         }
 
