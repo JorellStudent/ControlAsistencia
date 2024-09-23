@@ -1,36 +1,44 @@
 ﻿@model ControlAsistencia.Models.HorarioTrabajo
 
 @{
-    ViewBag.Title = "Crear Horario de Trabajo";
+    ViewBag.Title = "Asignar Nuevo Horario";
 }
 
-<h2>Crear Horario de Trabajo</h2>
+<h2>Asignar Nuevo Horario</h2>
 
 <form asp-action="Crear" method="post">
     <div class="form-group">
-        <label for="IdUsuario">Empleado</label>
+        <label asp-for="IdUsuario" class="control-label">Empleado</label>
         <select asp-for="IdUsuario" class="form-control" asp-items="ViewBag.Usuarios"></select>
         <span asp-validation-for="IdUsuario" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="DiaSemana">Día de la Semana</label>
-        <input asp-for="DiaSemana" class="form-control" />
+        <label asp-for="DiaSemana" class="control-label">Día de la Semana</label>
+        <select asp-for="DiaSemana" class="form-control">
+            <option value="Lunes">Lunes</option>
+            <option value="Martes">Martes</option>
+            <option value="Miércoles">Miércoles</option>
+            <option value="Jueves">Jueves</option>
+            <option value="Viernes">Viernes</option>
+            <option value="Sábado">Sábado</option>
+            <option value="Domingo">Domingo</option>
+        </select>
         <span asp-validation-for="DiaSemana" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="HoraEntrada">Hora de Entrada</label>
+        <label asp-for="HoraEntrada" class="control-label">Hora de Entrada</label>
         <input asp-for="HoraEntrada" class="form-control" type="time" />
         <span asp-validation-for="HoraEntrada" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="HoraSalida">Hora de Salida</label>
+        <label asp-for="HoraSalida" class="control-label">Hora de Salida</label>
         <input asp-for="HoraSalida" class="form-control" type="time" />
         <span asp-validation-for="HoraSalida" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-success">Crear</button>
-    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>

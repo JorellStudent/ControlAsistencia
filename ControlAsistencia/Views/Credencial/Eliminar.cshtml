@@ -16,17 +16,35 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.NombreUsuario)
         </dd>
+
+        <!-- Verificación de si Usuario es nulo -->
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Usuario.Nombre)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Usuario.Nombre)
+            @if (Model.Usuario != null)
+            {
+                @Html.DisplayFor(model => model.Usuario.Nombre)
+            }
+            else
+            {
+                <span>Usuario no asignado</span>
+            }
         </dd>
+
+        <!-- Verificación de si Rol es nulo -->
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Rol.NombreRol)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Rol.NombreRol)
+            @if (Model.Rol != null)
+            {
+                @Html.DisplayFor(model => model.Rol.NombreRol)
+            }
+            else
+            {
+                <span>Rol no asignado</span>
+            }
         </dd>
     </dl>
 

@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ControlAsistencia.Data;
 using ControlAsistencia.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ControlAsistencia.Controllers
 {
@@ -15,188 +17,185 @@ namespace ControlAsistencia.Controllers
             _context = context;
         }
 
-        // Método para cargar ViewBags de Usuarios (empleados)
-        private void CargarUsuarios()
+        // Acción para mostrar la lista de horarios de trabajo con filtros.
+        public async Task<IActionResult> Index(string searchNombre = "", string searchDia = "")
         {
-            ViewBag.Usuarios = new SelectList(_context.Usuarios.Where(u => u.Activo), "IdUsuario", "Nombre");
-        }
+            var horarios = _context.HorariosTrabajo
+                .Include(h => h.Usuario)
+                .AsQueryable();
 
-        // Acción para listar los horarios de trabajo (Index)
-        public async Task<IActionResult> Index()
-        {
-            try
+            // Filtro por nombre de usuario.
+            if (!string.IsNullOrEmpty(searchNombre))
             {
-                var horarios = await _context.HorariosTrabajo
-                    .Include(h => h.Usuario)
-                    .ToListAsync();
-                return View(horarios);
+                horarios = horarios.Where(h => h.Usuario.Nombre.Contains(searchNombre) || h.Usuario.Apellido.Contains(searchNombre));
             }
-            catch (Exception ex)
+
+            // Filtro por día de la semana.
+            if (!string.IsNullOrEmpty(searchDia))
             {
-                ModelState.AddModelError("", $"Error al cargar los horarios: {ex.Message}");
-                return View("Error");
+                horarios = horarios.Where(h => h.DiaSemana == searchDia);
             }
+
+            ViewBag.searchNombre = searchNombre;
+            ViewBag.searchDia = searchDia;
+
+            return View(await horarios.ToListAsync());
         }
 
-        // Acción para mostrar el formulario de creación de un nuevo horario (GET)
-        public IActionResult Crear()
+        // Acción para mostrar el formulario de creación de un nuevo horario.
+        public async Task<IActionResult> Crear()
         {
-            CargarUsuarios();
-            return View();
+            await CargarUsuariosConCredencialAsync(); // Cargar usuarios con credencial en ViewBag.
+            return View(new HorarioTrabajo());
         }
 
-        // Acción para procesar la creación de un nuevo horario (POST)
+        // POST: Crear nuevo horario.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(HorarioTrabajo horario)
         {
             if (!ModelState.IsValid)
             {
-                CargarUsuarios();
-                return View(horario);
+                await CargarUsuariosConCredencialAsync();
+                return View(horario); // Si hay errores, se devuelve el formulario con los datos ingresados.
             }
 
             try
             {
-                _context.Add(horario);
+                _context.HorariosTrabajo.Add(horario);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Horario de trabajo creado exitosamente.";
+                TempData["SuccessMessage"] = "Horario creado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Error al intentar crear el horario: {ex.Message}");
-                CargarUsuarios();
+                ModelState.AddModelError("", "Error al crear el horario: " + ex.Message);
+                await CargarUsuariosConCredencialAsync();
                 return View(horario);
             }
         }
 
-        // Acción para mostrar el formulario de edición de un horario existente (GET)
+        // Método para cargar solo usuarios con credencial en el ViewBag (async).
+        private async Task CargarUsuariosConCredencialAsync()
+        {
+            var usuariosConCredencial = await _context.Usuarios
+                .Where(u => u.Activo && _context.Credencial.Any(c => c.IdUsuario == u.IdUsuario))
+                .ToListAsync();
+
+            ViewBag.Usuarios = usuariosConCredencial.Any()
+                ? new SelectList(usuariosConCredencial, "IdUsuario", "Nombre")
+                : new SelectList(Enumerable.Empty<SelectListItem>());
+        }
+
+        // Acción para mostrar el formulario de edición de un horario existente.
         public async Task<IActionResult> Editar(int? id)
         {
             if (id == null)
             {
-                TempData["ErrorMessage"] = "ID de horario no proporcionado.";
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            try
+            var horario = await _context.HorariosTrabajo.FindAsync(id);
+            if (horario == null)
             {
-                var horario = await _context.HorariosTrabajo.FindAsync(id);
-                if (horario == null)
-                {
-                    TempData["ErrorMessage"] = "Horario no encontrado.";
-                    return RedirectToAction(nameof(Index));
-                }
+                return NotFound();
+            }
 
-                CargarUsuarios();
-                return View(horario);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"Error al cargar el horario: {ex.Message}");
-                return RedirectToAction(nameof(Index));
-            }
+            await CargarUsuariosConCredencialAsync(); // Cargar usuarios en ViewBag.
+            return View(horario);
         }
 
-        // Acción para procesar la edición de un horario (POST)
+        // POST: Editar horario existente.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(int id, HorarioTrabajo horario)
         {
             if (id != horario.IdHorario)
             {
-                TempData["ErrorMessage"] = "ID de horario no coincide.";
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
             if (!ModelState.IsValid)
             {
-                CargarUsuarios();
+                await CargarUsuariosConCredencialAsync();
                 return View(horario);
             }
 
             try
             {
-                _context.Update(horario);
+                _context.HorariosTrabajo.Update(horario);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Horario de trabajo editado exitosamente.";
+                TempData["SuccessMessage"] = "Horario editado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.HorariosTrabajo.Any(e => e.IdHorario == id))
+                if (!HorarioTrabajoExists(horario.IdHorario))
                 {
-                    TempData["ErrorMessage"] = "Horario no encontrado.";
-                    return RedirectToAction(nameof(Index));
+                    return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                ModelState.AddModelError("", "Error de concurrencia. Intente nuevamente.");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Error al intentar editar el horario: {ex.Message}");
-                CargarUsuarios();
-                return View(horario);
+                ModelState.AddModelError("", "Error al editar el horario: " + ex.Message);
             }
+
+            await CargarUsuariosConCredencialAsync();
+            return View(horario);
         }
 
-        // Acción para mostrar el formulario de eliminación de un horario (GET)
+        // GET: Mostrar vista de confirmación de eliminación.
         public async Task<IActionResult> Eliminar(int? id)
         {
             if (id == null)
             {
-                TempData["ErrorMessage"] = "ID de horario no proporcionado.";
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            try
+            var horario = await _context.HorariosTrabajo
+                .Include(h => h.Usuario)
+                .FirstOrDefaultAsync(h => h.IdHorario == id);
+
+            if (horario == null)
             {
-                var horario = await _context.HorariosTrabajo
-                    .Include(h => h.Usuario)
-                    .FirstOrDefaultAsync(h => h.IdHorario == id);
-
-                if (horario == null)
-                {
-                    TempData["ErrorMessage"] = "Horario no encontrado.";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                return View(horario);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"Error al cargar el horario: {ex.Message}");
-                return RedirectToAction(nameof(Index));
-            }
+
+            return View(horario);
         }
 
-        // Acción para confirmar la eliminación de un horario (POST)
+        // POST: Confirmar eliminación de un horario.
         [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarConfirmado(int id)
         {
+            var horario = await _context.HorariosTrabajo.FindAsync(id);
+            if (horario == null)
+            {
+                TempData["ErrorMessage"] = "El horario que intentas eliminar no existe.";
+                return RedirectToAction(nameof(Index));
+            }
+
             try
             {
-                var horario = await _context.HorariosTrabajo.FindAsync(id);
-                if (horario == null)
-                {
-                    TempData["ErrorMessage"] = "No se encontró el horario que intentas eliminar.";
-                    return RedirectToAction(nameof(Index));
-                }
-
                 _context.HorariosTrabajo.Remove(horario);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Horario de trabajo eliminado exitosamente.";
-                return RedirectToAction(nameof(Index));
+                TempData["SuccessMessage"] = "Horario eliminado correctamente.";
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Ocurrió un error al intentar eliminar el horario: {ex.Message}");
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = "Error al eliminar el horario: " + ex.Message;
             }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Método para verificar si el horario existe.
+        private bool HorarioTrabajoExists(int id)
+        {
+            return _context.HorariosTrabajo.Any(e => e.IdHorario == id);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace ControlAsistencia.Data
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
         public DbSet<Permiso> Permisos { get; set; }
-        public DbSet<Credencial> Credencial { get; set; } 
+        public DbSet<Credencial> Credencial { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,6 +43,13 @@ namespace ControlAsistencia.Data
                 .WithMany(r => r.Credencial)
                 .HasForeignKey(c => c.IdRol)
                 .OnDelete(DeleteBehavior.Cascade);  // Eliminar en cascada
+
+            // Nueva relación entre HorarioTrabajo y Usuario
+            modelBuilder.Entity<HorarioTrabajo>()
+                .HasOne(ht => ht.Usuario)  // Un Horario tiene un Usuario
+                .WithMany(u => u.HorariosTrabajo)  // Un Usuario tiene muchos HorariosTrabajo
+                .HasForeignKey(ht => ht.IdUsuario)  // Definir clave foránea
+                .OnDelete(DeleteBehavior.Restrict); // Evitar eliminación en cascada
 
             base.OnModelCreating(modelBuilder);
         }

@@ -9,30 +9,52 @@
 <form asp-action="Editar" method="post">
     <input type="hidden" asp-for="IdHorario" />
 
+    <!-- Selección de Empleado (deshabilitado para evitar edición) -->
     <div class="form-group">
-        <label for="IdUsuario">Empleado</label>
-        <select asp-for="IdUsuario" class="form-control" asp-items="ViewBag.Usuarios"></select>
+        <label asp-for="IdUsuario" class="control-label">Empleado</label>
+        <!-- Campo IdUsuario activado pero con una presentación deshabilitada -->
+        <select asp-for="IdUsuario" class="form-control" asp-items="ViewBag.Usuarios" readonly>
+            <option value="">Seleccione un empleado</option>
+        </select>
         <span asp-validation-for="IdUsuario" class="text-danger"></span>
     </div>
 
+    <!-- Selección del Día de la Semana -->
     <div class="form-group">
-        <label for="DiaSemana">Día de la Semana</label>
-        <input asp-for="DiaSemana" class="form-control" />
+        <label asp-for="DiaSemana" class="control-label">Día de la Semana</label>
+        <select asp-for="DiaSemana" class="form-control">
+            @foreach (var dia in new List<string> { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" })
+            {
+                if (dia == Model.DiaSemana)
+                {
+                    <option value="@dia" selected>@dia</option>
+                }
+                else
+                {
+                    <option value="@dia">@dia</option>
+                }
+            }
+        </select>
+
+
         <span asp-validation-for="DiaSemana" class="text-danger"></span>
     </div>
 
+    <!-- Hora de Entrada -->
     <div class="form-group">
-        <label for="HoraEntrada">Hora de Entrada</label>
+        <label asp-for="HoraEntrada" class="control-label">Hora de Entrada</label>
         <input asp-for="HoraEntrada" class="form-control" type="time" />
         <span asp-validation-for="HoraEntrada" class="text-danger"></span>
     </div>
 
+    <!-- Hora de Salida -->
     <div class="form-group">
-        <label for="HoraSalida">Hora de Salida</label>
+        <label asp-for="HoraSalida" class="control-label">Hora de Salida</label>
         <input asp-for="HoraSalida" class="form-control" type="time" />
         <span asp-validation-for="HoraSalida" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+    <!-- Botones -->
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>

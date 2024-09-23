@@ -34,15 +34,16 @@ namespace ControlAsistencia.Controllers
 
             // Buscar la credencial en la base de datos con el rol correspondiente
             var credencial = await _context.Credencial
-                .Include(c => c.Rol)
-                .FirstOrDefaultAsync(c => c.NombreUsuario == NombreUsuario && c.Contrasena == Contrasena);
+    .Include(c => c.Rol)
+    .FirstOrDefaultAsync(c => c.NombreUsuario == NombreUsuario && c.Contrasena == Contrasena);
 
             // Validar credencial y rol de administrador
-            if (credencial == null || credencial.Rol.NombreRol != "Administrador")
+            if (credencial == null || credencial.Rol == null || credencial.Rol.NombreRol != "Administrador")
             {
                 ViewBag.Message = "Credenciales de administrador inválidas.";
                 return View();
             }
+
 
             // Si las credenciales son válidas, redirigir al panel de administración
             // Aquí podrías establecer la sesión del administrador, por ejemplo:
