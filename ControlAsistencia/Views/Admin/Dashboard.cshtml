@@ -4,71 +4,62 @@
 }
 
 <div class="container mt-5">
-    <h2 class="text-center display-4 font-weight-bold mb-4">Panel de Administración</h2>
+    <h2 class="text-center display-4 font-weight-bold mb-5">Panel de Administración</h2>
     <div class="row justify-content-center">
         <!-- Sección para gestionar usuarios -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-body text-center py-5">
-                    <h4 class="card-title font-weight-bold">Gestión de Usuarios</h4>
-                    <p class="text-muted">Crear, editar o eliminar usuarios</p>
-                    <a href="@Url.Action("Index", "Usuario")" class="btn btn-primary btn-lg w-100 shadow-sm">Gestionar Usuarios</a>
-                </div>
+        <div class="col-md-6 col-lg-3 mb-4 d-flex flex-column justify-content-between align-items-center text-center">
+            <div class="mb-4">
+                <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                <h4 class="font-weight-bold">Gestión de Usuarios</h4>
+                <p class="text-muted">Crear, editar o eliminar usuarios</p>
             </div>
+            <a href="@Url.Action("Index", "Usuario")" class="btn btn-primary btn-lg w-100">Gestionar Usuarios</a>
         </div>
 
         <!-- Sección para gestionar credenciales -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-body text-center py-5">
-                    <h4 class="card-title font-weight-bold">Gestión de Credenciales</h4>
-                    <p class="text-muted">Crear, editar o eliminar credenciales</p>
-                    <a href='@Url.Action("Index", "Credencial")' class="btn btn-info btn-lg w-100 shadow-sm">Gestionar Credenciales</a>
-                </div>
+        <div class="col-md-6 col-lg-3 mb-4 d-flex flex-column justify-content-between align-items-center text-center">
+            <div class="mb-4">
+                <i class="fas fa-id-badge fa-3x mb-3 text-info"></i>
+                <h4 class="font-weight-bold">Gestión de Credenciales</h4>
+                <p class="text-muted">Crear, editar o eliminar credenciales</p>
             </div>
+            <a href='@Url.Action("Index", "Credencial")' class="btn btn-info btn-lg w-100">Gestionar Credenciales</a>
         </div>
 
         <!-- Sección para definir horarios de trabajo -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-body text-center py-5">
-                    <h4 class="card-title font-weight-bold">Horarios de Trabajo</h4>
-                    <p class="text-muted">Definir horarios de trabajo</p>
-                    <a href='@Url.Action("Index", "HorarioTrabajo")' class="btn btn-warning btn-lg w-100 shadow-sm">Definir Horarios</a>
-                </div>
+        <div class="col-md-6 col-lg-3 mb-4 d-flex flex-column justify-content-between align-items-center text-center">
+            <div class="mb-4">
+                <i class="fas fa-calendar-alt fa-3x mb-3 text-warning"></i>
+                <h4 class="font-weight-bold">Horarios de Trabajo</h4>
+                <p class="text-muted">Definir horarios de trabajo</p>
             </div>
+            <a href='@Url.Action("Index", "HorarioTrabajo")' class="btn btn-warning btn-lg w-100">Definir Horarios</a>
         </div>
 
         <!-- Sección para reportes de asistencia -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-body text-center py-5">
-                    <h4 class="card-title font-weight-bold">Reportes de Asistencia</h4>
-                    <p class="text-muted">Generar reportes de asistencia</p>
-                    <a href='@Url.Action("Index", "Reporte")' class="btn btn-success btn-lg w-100 shadow-sm">Ver Reportes</a>
-                </div>
+        <div class="col-md-6 col-lg-3 mb-4 d-flex flex-column justify-content-between align-items-center text-center">
+            <div class="mb-4">
+                <i class="fas fa-file-alt fa-3x mb-3 text-success"></i>
+                <h4 class="font-weight-bold">Reportes de Asistencia</h4>
+                <p class="text-muted">Generar reportes de asistencia</p>
             </div>
+            <a href='@Url.Action("Index", "Reporte")' class="btn btn-success btn-lg w-100">Ver Reportes</a>
         </div>
     </div>
 </div>
 
 <!-- Estilos adicionales -->
 <style>
-    .card {
-        transition: all 0.3s ease-in-out;
-    }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
-        }
-
     .btn-lg {
         font-size: 1.1rem;
-        padding: 10px 20px;
+        padding: 10px 30px;
+        border-radius: 30px;
+        min-width: 200px;
     }
 
-    .card-body h4 {
+    h4 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
         color: #333;
     }
 
@@ -78,47 +69,44 @@
     }
 
     .container h2 {
-        font-size: 2.5rem;
-        color: #007bff;
+        font-size: 2.75rem;
+        color: #0056b3;
+        margin-bottom: 2rem;
     }
 
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
+    /* Estilos para alinear el ícono */
+    i {
+        margin-bottom: 10px;
+        display: block;
     }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-    .btn-info {
-        background-color: #17a2b8;
-        border-color: #17a2b8;
+    /* Estilos para igualar la altura de las columnas */
+    .d-flex {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
 
-        .btn-info:hover {
-            background-color: #138496;
-        }
-
-    .btn-warning {
-        background-color: #ffc107;
-        border-color: #ffc107;
+    .mb-4 {
+        margin-bottom: auto;
     }
 
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-
-    .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
+    /* Hover colors for buttons */
+    .btn-primary:hover {
+        background-color: #0056b3;
     }
 
-        .btn-success:hover {
-            background-color: #218838;
-        }
-
-    .shadow-lg {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    .btn-info:hover {
+        background-color: #138496;
     }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    
 </style>

@@ -7,7 +7,7 @@
     <!-- Título principal -->
     <div class="row">
         <div class="col-md-12 text-center">
-            <h2 class="display-4 font-weight-bold">Registro de Asistencia</h2>
+            <h2 class="display-4 font-weight-bold text-primary">Registro de Asistencia</h2>
         </div>
     </div>
 
@@ -23,10 +23,10 @@
         </div>
     }
 
-    <!-- Sección para mostrar la fecha y hora en tiempo real -->zz
+    <!-- Sección para mostrar la fecha y hora en tiempo real -->
     <div class="row mt-4">
         <div class="col-md-12 text-center">
-            <h4>Fecha y Hora Actual:</h4>
+            <h4 class="text-secondary">Fecha y Hora Actual:</h4>
             <h3 id="fechaHoraActual" class="font-weight-bold text-primary"></h3>
         </div>
     </div>
@@ -34,31 +34,27 @@
     <div class="row mt-5 justify-content-center">
         <!-- Formulario de Entrada/Salida -->
         <div class="col-md-6 mb-3">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <h4 class="card-title text-center" id="tituloFormulario">Marcar Entrada</h4>
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body py-5">
+                    <h4 class="card-title text-center text-secondary" id="tituloFormulario">Marcar Entrada</h4>
 
                     <form id="formularioEntradaSalida" method="post" action="/Home/MarcarEntrada">
-                        <div class="form-group">
-                            <label for="NombreUsuario">Nombre de Usuario:</label>
+                        <div class="form-group mb-4">
+                            <label for="NombreUsuario" class="form-label">Nombre de Usuario:</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                </div>
+                                <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
                                 <input type="text" name="NombreUsuario" class="form-control" required value="@ViewBag.NombreUsuario" placeholder="Ingrese su nombre de usuario" />
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="Contrasena">Contraseña:</label>
+                        <div class="form-group mb-4">
+                            <label for="Contrasena" class="form-label">Contraseña:</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                </div>
+                                <span class="input-group-text bg-light"><i class="fas fa-lock"></i></span>
                                 <input type="password" name="Contrasena" class="form-control" required placeholder="Ingrese su contraseña" />
                             </div>
                         </div>
-                        <div class="text-center mb-2">
-                            <button type="submit" id="btnAccion" class="btn btn-success w-100 mb-2">
+                        <div class="text-center mb-4">
+                            <button type="submit" id="btnAccion" class="btn btn-success w-100 py-2">
                                 <i class="fas fa-sign-in-alt"></i> Marcar Entrada
                             </button>
                         </div>
@@ -70,7 +66,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- Para usar los íconos de Font Awesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
         // Función para actualizar la fecha y hora en tiempo real
@@ -79,29 +75,23 @@
             var opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             var opcionesHora = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
 
-            // Actualizar el texto en el HTML
             document.getElementById("fechaHoraActual").innerHTML =
                 fecha.toLocaleDateString('es-ES', opcionesFecha) + ' - ' +
                 fecha.toLocaleTimeString('es-ES', opcionesHora);
         }
 
-        // Actualizar la hora cada segundo
         setInterval(actualizarFechaHora, 1000);
 
         $(document).ready(function () {
-            // Verificar la hora actual
             var fechaActual = new Date();
             var hora = fechaActual.getHours();
 
-            // Si es antes de las 12:00 PM, mostrar botón de entrada, sino, mostrar botón de salida
             if (hora < 12) {
-                // Antes de las 12 PM
                 $('#btnAccion').removeClass('btn-danger').addClass('btn-success');
                 $('#btnAccion').html('<i class="fas fa-sign-in-alt"></i> Marcar Entrada');
                 $('#formularioEntradaSalida').attr('action', '/Home/MarcarEntrada');
                 $('#tituloFormulario').text('Marcar Entrada');
             } else {
-                // Después de las 12 PM
                 $('#btnAccion').removeClass('btn-success').addClass('btn-danger');
                 $('#btnAccion').html('<i class="fas fa-sign-out-alt"></i> Marcar Salida');
                 $('#formularioEntradaSalida').attr('action', '/Home/MarcarSalida');
@@ -110,3 +100,43 @@
         });
     </script>
 }
+
+<!-- Estilos personalizados para mejorar la apariencia -->
+<style>
+    body {
+        background-color: #f8f9fa;
+        background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+    }
+
+    .card {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+        padding: 30px;
+    }
+
+    .btn {
+        font-size: 1.2rem;
+        border-radius: 30px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+    }
+
+    .text-primary {
+        color: #007bff !important;
+    }
+
+    h4 {
+        font-size: 1.5rem;
+    }
+</style>

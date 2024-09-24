@@ -4,34 +4,45 @@
 }
 
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow border-0 rounded-lg">
-                <div class="card-header bg-gradient-primary text-white text-center py-4">
-                    <h2 class="card-title mb-0">Iniciar sesión como Administrador</h2>
-                    <p class="mt-2 mb-0">Por favor, ingresa tus credenciales</p>
+    <!-- Mostrar mensajes dinámicos -->
+    @if (ViewBag.Message != null)
+    {
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="alert alert-danger text-center">
+                    @ViewBag.Message
                 </div>
-                <div class="card-body py-4 px-5">
-                    <!-- Mostrar mensajes de error -->
-                    @if (ViewBag.Message != null)
-                    {
-                        <div class="alert alert-danger text-center">
-                            @ViewBag.Message
-                        </div>
-                    }
+            </div>
+        </div>
+    }
 
-                    <!-- Formulario de inicio de sesión -->
+    <!-- Formulario de Entrada/Salida -->
+    <div class="row mt-5 justify-content-center">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body py-5 px-4">
+                    <h4 class="card-title text-center text-primary mb-4">Iniciar sesión como Administrador</h4>
+                    <p class="text-secondary text-center">Por favor, ingresa tus credenciales</p>
+
                     <form method="post" action="/Admin/Login">
-                        <div class="form-group">
-                            <label for="NombreUsuario" class="font-weight-bold">Nombre de Usuario:</label>
-                            <input type="text" name="NombreUsuario" class="form-control" required placeholder="Ingrese su nombre de usuario" autofocus />
+                        <div class="form-group mb-4">
+                            <label for="NombreUsuario" class="form-label">Nombre de Usuario:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-user"></i></span>
+                                <input type="text" name="NombreUsuario" class="form-control" required placeholder="Ingrese su nombre de usuario" />
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="Contrasena" class="font-weight-bold">Contraseña:</label>
-                            <input type="password" name="Contrasena" class="form-control" required placeholder="Ingrese su contraseña" />
+                        <div class="form-group mb-4">
+                            <label for="Contrasena" class="form-label">Contraseña:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="Contrasena" class="form-control" required placeholder="Ingrese su contraseña" />
+                            </div>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary btn-block btn-lg mt-3 shadow-sm">Iniciar sesión</button>
+                            <button type="submit" class="btn btn-primary w-100 py-3 shadow-sm rounded-pill">
+                                <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -45,35 +56,49 @@
 
 <!-- Estilos adicionales -->
 <style>
-    .bg-gradient-primary {
-        background: linear-gradient(90deg, #007bff 0%, #00d4ff 100%);
-    }
-
     .card {
-        border-radius: 15px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
 
     .btn-primary {
         background-color: #007bff;
         border-color: #007bff;
-        padding: 12px 20px;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        padding: 10px 15px;
+        font-weight: bold;
+        border-radius: 30px;
+        transition: all 0.3s ease-in-out;
     }
 
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #004085;
+            transform: translateY(-2px);
         }
 
     .form-control {
-        border-radius: 8px;
-        padding: 10px;
+        border-radius: 10px;
+        padding: 15px;
         font-size: 1.1rem;
+        border: 1px solid #ced4da;
+        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.25);
+        }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        border-radius: 0.375rem;
+        font-size: 1.1rem;
+        padding: 10px;
     }
 
     .card-footer {
-        padding: 15px;
+        padding: 20px;
     }
 
     .alert {
@@ -81,21 +106,26 @@
         border-radius: 10px;
     }
 
-    /* Fondo suave para la página */
-    body {
-        background-color: #f8f9fa;
+    .text-primary {
+        color: #007bff !important;
     }
 
-    .card-header h2 {
-        font-size: 1.8rem;
+    .text-secondary {
+        color: #6c757d !important;
     }
 
-    .card-header p {
-        font-size: 1.1rem;
-        font-weight: 300;
+    h4 {
+        font-size: 1.6rem;
+        font-weight: 600;
     }
 
-    .btn-lg {
+    .card-body {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+
+    .input-group-text i {
         font-size: 1.2rem;
     }
+
 </style>

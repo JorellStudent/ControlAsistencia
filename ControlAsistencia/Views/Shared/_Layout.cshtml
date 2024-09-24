@@ -1,51 +1,103 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Control de Asistencia</title>
 
-    <!-- Incluyendo Bootstrap desde un CDN para mejorar la apariencia -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Incluyendo Bootstrap 5 desde un CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
     <!-- Incluyendo el archivo CSS del proyecto -->
     <link rel="stylesheet" href="~/css/site.css" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="/">Control de Asistencia</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Inicio</a>
-                    </li>
 
-                    <!-- Mostrar opción de inicio de sesión como administrador solo en la página de inicio -->
-                    @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index")
-                    {
+    <!-- Estilos adicionales para el background -->
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            
+        }
+
+        main {
+            flex: 1;
+        }
+
+        /* Navbar improvements */
+        .navbar {
+            background-color: #f8f9fa;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+        }
+
+        .navbar-brand,
+        .nav-link {
+            font-weight: bold;
+            color: #333 !important;
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header con navbar -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">Control de Asistencia</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="/Admin/Login">Iniciar sesión como administrador</a>
+                            <a class="nav-link" href="/Admin/Dashboard">Inicio</a>
                         </li>
-                    }
-                </ul>
+                        <!-- Mostrar opción de inicio de sesión como administrador solo en la página de inicio -->
+                        @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Admin/Login">Iniciar sesión como administrador</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         </nav>
     </header>
 
-    <div class="container mt-4">
-        @RenderBody()
-    </div>
+    <!-- Contenido principal -->
+    <main>
+        <div class="container mt-4">
+            @RenderBody() <!-- Sección principal donde se renderizan las vistas -->
+        </div>
+    </main>
 
-    <footer class="text-center mt-4">
-        <p>&copy; @DateTime.Now.Year - Control de Asistencia</p>
+    <!-- Footer -->
+    <footer class="footer text-center py-3">
+        <div class="container">
+            <span class="text-muted">&copy; 2024 - Control de Asistencia</span>
+        </div>
     </footer>
 
-    <!-- Incluyendo jQuery y Bootstrap desde un CDN -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <!-- Scripts de Bootstrap y jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
+
 </html>
