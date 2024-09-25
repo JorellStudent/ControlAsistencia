@@ -7,28 +7,28 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace ControlAsistencia.Controllers
 {
     public class UsuarioController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<UsuarioController> _logger; // Para registrar errores
+        private readonly ILogger<UsuarioController> _logger;
 
         public UsuarioController(ApplicationDbContext context, ILogger<UsuarioController> logger)
         {
             _context = context;
-            _logger = logger; // Inicialización del logger
+            _logger = logger;
         }
 
         // Lista de usuarios activos con filtro de búsqueda
         public async Task<IActionResult> Index(string searchString)
         {
-            var usuarios = _context.Usuarios.Where(u => u.Activo); // Solo usuarios activos
+            var usuarios = _context.Usuarios.Where(u => u.Activo);
 
             if (!string.IsNullOrEmpty(searchString))
             {
-                // Búsqueda directamente en la base de datos (LINQ to Entities)
                 searchString = searchString.ToLower();
                 usuarios = usuarios.Where(s => s.Nombre.ToLower().Contains(searchString) ||
                                                s.Apellido.ToLower().Contains(searchString) ||
@@ -56,12 +56,11 @@ namespace ControlAsistencia.Controllers
             return View();
         }
 
-        // Crear usuario (POST) con validación de RUT único y guardado de imagen
+        // Crear usuario (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear([Bind("Nombre,Apellido,Correo,Foto,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario, IFormFile Foto)
+        public async Task<IActionResult> Crear([Bind("Nombre,Apellido,Correo,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario, IFormFile Foto)
         {
-            // Verificar que el RUT sea único
             if (_context.Usuarios.Any(u => u.RUT == usuario.RUT))
             {
                 ModelState.AddModelError("RUT", "El RUT ya está registrado.");
@@ -72,30 +71,14 @@ namespace ControlAsistencia.Controllers
             {
                 try
                 {
-                    // Guardar la imagen si está presente
-                    if (Foto != null && Foto.Length > 0)
+                    // Si no se sube una foto, establecer una imagen predeterminada
+                    if (Foto == null || Foto.Length == 0)
                     {
-                        // Limitar el tamaño del archivo (ejemplo: 2 MB)
-                        if (Foto.Length > 2 * 1024 * 1024)
-                        {
-                            ModelState.AddModelError("Foto", "El tamaño del archivo de imagen no debe superar los 2 MB.");
-                            return View(usuario);
-                        }
-
-                        var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                        if (!Directory.Exists(directoryPath))
-                        {
-                            Directory.CreateDirectory(directoryPath);
-                        }
-
-                        // Generar un nombre de archivo único
-                        var fileName = Guid.NewGuid() + Path.GetExtension(Foto.FileName);
-                        var filePath = Path.Combine(directoryPath, fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await Foto.CopyToAsync(stream);
-                        }
-                        usuario.Foto = "/images/" + fileName; // Guardar la ruta de la imagen
+                        usuario.Foto = "/images/default-user.png"; // Ruta de la imagen predeterminada
+                    }
+                    else
+                    {
+                        usuario.Foto = await GuardarFoto(Foto);
                     }
 
                     usuario.Activo = true; // Usuario activo por defecto
@@ -107,7 +90,6 @@ namespace ControlAsistencia.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Registrar el error
                     _logger.LogError(ex, "Error al agregar el usuario");
                     TempData["ErrorMessage"] = $"Error al agregar usuario: {ex.Message}";
                 }
@@ -131,7 +113,7 @@ namespace ControlAsistencia.Controllers
         // Editar usuario (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("IdUsuario,Nombre,Apellido,Correo,Foto,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario, IFormFile Foto)
+        public async Task<IActionResult> Editar(int id, [Bind("IdUsuario,Nombre,Apellido,Correo,Sexo,FechaNacimiento,Nacionalidad,RUT,Activo")] Usuario usuario, IFormFile Foto)
         {
             if (id != usuario.IdUsuario)
             {
@@ -142,29 +124,10 @@ namespace ControlAsistencia.Controllers
             {
                 try
                 {
-                    // Guardar nueva imagen si se sube una
+                    // Solo actualizar la foto si se ha proporcionado una nueva
                     if (Foto != null && Foto.Length > 0)
                     {
-                        // Limitar el tamaño del archivo (ejemplo: 2 MB)
-                        if (Foto.Length > 2 * 1024 * 1024)
-                        {
-                            ModelState.AddModelError("Foto", "El tamaño del archivo de imagen no debe superar los 2 MB.");
-                            return View(usuario);
-                        }
-
-                        var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                        if (!Directory.Exists(directoryPath))
-                        {
-                            Directory.CreateDirectory(directoryPath);
-                        }
-
-                        var fileName = Guid.NewGuid() + Path.GetExtension(Foto.FileName);
-                        var filePath = Path.Combine(directoryPath, fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await Foto.CopyToAsync(stream);
-                        }
-                        usuario.Foto = "/images/" + fileName;
+                        usuario.Foto = await GuardarFoto(Foto);
                     }
 
                     _context.Update(usuario);
@@ -194,6 +157,32 @@ namespace ControlAsistencia.Controllers
             return View(usuario);
         }
 
+        // Método auxiliar para guardar la foto del usuario
+        private async Task<string> GuardarFoto(IFormFile Foto)
+        {
+            // Verificar el tamaño del archivo
+            if (Foto.Length > 2 * 1024 * 1024)
+            {
+                throw new Exception("El tamaño del archivo de imagen no debe superar los 2 MB.");
+            }
+
+            var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            // Generar un nombre de archivo único
+            var fileName = Guid.NewGuid() + Path.GetExtension(Foto.FileName);
+            var filePath = Path.Combine(directoryPath, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await Foto.CopyToAsync(stream);
+            }
+
+            return "/images/" + fileName; // Devolver la ruta de la imagen
+        }
+
         // Confirmar eliminación del usuario (GET)
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -221,7 +210,6 @@ namespace ControlAsistencia.Controllers
 
             try
             {
-                // Marca el usuario como inactivo en lugar de eliminarlo físicamente
                 usuario.Activo = false;
                 _context.Update(usuario);
                 await _context.SaveChangesAsync();
